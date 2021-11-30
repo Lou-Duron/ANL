@@ -1,9 +1,10 @@
 import random
 from constants import Constants
 from Objects import *
+from typing import List
 
-COLOR = Constants.COLOR
 DIRECTIONS = Constants.DIRECTIONS
+COLOR = Constants.COLOR
 
 class Square:
     def __init__(self,x,y):
@@ -13,17 +14,17 @@ class Square:
 
 class Game:
     def __init__(self, width, height):
-        self.grid = []
-        self.population = []
-        self.food = []
+        self.population: List[Block] = []
+        self.food: List[Food]= []
+        self.grid: List[List[Square]] = []
         for i in range(width):
             array = []
             for j in range(height):
                 array.append(Square(i,j))
             self.grid.append(array)
 
-    def get_block(self, position):
-        return self.grid[position.x][position.y].block
+    def get_square(self, position):
+        return self.grid[position.x][position.y]
     
     def add_organism(self, organism):
         self.population.append(organism)
@@ -31,21 +32,12 @@ class Game:
             self.get_square(b.pos).block = b
     
     def add_random_organism(self):
+        self.add_organism(Organism(1,2, COLOR.BLUE, DIRECTIONS.EAST, 1, 10))
         x = random.randint(3, len(self.grid) - 4)
         y = random.randint(3, len(self.grid) - 4)
-        col = random.randint(0, 4)
-        if col == 0:
-            color = COLOR.BLUE
-        elif col == 1:
-            color = COLOR.YELLOW
-        elif col == 2:
-            color = COLOR.GREEN
-        elif col == 3:
-            color = COLOR.RED
-        else:
-            color = COLOR.ORANGE
-        dir = random.randint(0, 3)
-        self.add_organism(Organism(x,y,color,dir))
+        dir = random.randint(0,3)
+        col = random.choice(list(COLOR.ORG))
+        self.add_organism(Organism(x,y,col,dir,1, 10))
 
     def move_all_randomly(self):
         for organism in self.population:

@@ -1,29 +1,31 @@
 import random
 from constants import Constants
-from pygame.sprite import spritecollide
-from game import Game
+from typing import List
 
-COLOR = Constants.COLOR
 DIRECTIONS = Constants.DIRECTIONS
+COLOR = Constants.COLOR
+
+
 
 class Organism:
     
-    def __init__(self, x, y, color, direction):
-        self.speed = 1
+    def __init__(self, x, y, color, direction, speed, vision):
+        self.pos = Position(x,y)
         self.color = color
-        self.direction = direction
+        self.direction: int = direction
+        self.speed = speed
+        self.vision = vision
         self.blocks: list[Block] = []
-        self.vision = 10
-        self.blocks.append(Head(x,y, COLOR.BLACK))
+        self.blocks.append(Head(x, y, COLOR.BLACK))
         self.head = self.blocks[0]
         for i in range(1, 4):
-            if self.direction == 0:
+            if self.direction == DIRECTIONS.NORTH:
                 self.blocks.append(Body(x, y + i, color))
-            elif self.direction == 1: 
+            elif self.direction == DIRECTIONS.EAST: 
                 self.blocks.append(Body(x - i, y, color))
-            elif self.direction == 2: 
+            elif self.direction == DIRECTIONS.SOUTH: 
                 self.blocks.append(Body(x, y - i, color))
-            elif self.direction == 3: 
+            elif self.direction == DIRECTIONS.WEST: 
                 self.blocks.append(Body(x + i, y, color))
         self.center = self.blocks[1]
         
@@ -31,7 +33,7 @@ class Organism:
     def move_straight(self, step, grid):
         for block in self.blocks:
             if block.pos.is_in_grid(grid):
-                grid.get_block(block.pos) = None###########
+                grid[block.pos.x][block.pos.y].block = None
             if self.direction == DIRECTIONS.NORTH:
                 block.pos.y -= step
             elif self.direction == DIRECTIONS.EAST: 
@@ -42,35 +44,20 @@ class Organism:
                 block.pos.x -= step
         for block in self.blocks:
             if block.pos.is_in_grid(grid):
-                grid.get_block(block.pos) = block
+                grid[block.pos.x][block.pos.y].block = block
 
     def rotate(self, clock_wise, grid):
         #get center
-        dir = {DIRECTIONS.NORTH:0,DIRECTIONS.NORTH:1,DIRECTIONS.NORTH:2,DIRECTIONS.NORTH:3} 
-        if clock_wise:
-            self.direction = (self.direction + 1) % 4
-            for block in self.blocks:
-                if block.pos.is_in_grid(grid):
-                    grid.get_block(block.pos) = None
-                delta_x = block.pos.x - self.center.pos.x
-                delta_y = block.pos.y - self.center.pos.y
-                block.pos.x = self.center.pos.x - delta_y
-                block.pos.y = self.center.pos.y + delta_x
-            for block in self.blocks:
-                if block.pos.is_in_grid(grid):
-                    grid.get_block(block.pos) = block
-        else:
-            self.direction = (self.direction - 1) % 4
-            for block in self.blocks:
-                if block.pos.is_in_grid(grid):
-                    grid.get_block(block.pos) = None
-                delta_x = block.pos.x - self.center.pos.x
-                delta_y = block.pos.y - self.center.pos.y
-                block.pos.x = self.center.pos.x + delta_y
-                block.pos.y = self.center.pos.y - delta_x
-            for block in self.blocks:
-                if block.pos.is_in_grid(grid):
-                    grid.get_block(block.pos) = block
+        cw = -1
+        if clock_wise: cw = 1
+        self.direction = (self.direction + cw) % 4
+        for block in self.blocks:
+            if block.pos.is_in_grid(grid):
+                grid[block.pos.x][block.pos.y].block = None
+            delta_x = block.pos.x - self.center.pos.x
+            delta_y = block.pos.y - self.center.pos.y
+            block.pos.x = self.center.pos.x + (-cw * delta_y)
+            block.pos.y = self.center.pos.y + (cw * delta_x)
 
     def random_move(self, grid):
         r = random.randint(0, 3)
@@ -117,6 +104,8 @@ class Block:
       self.pos = Position(x,y)
       self.color = color
 
+
+
    
 class Head(Block):
     def __init__(self, x, y, color):
@@ -126,9 +115,9 @@ class Body(Block):
    def __init__(self, x, y, color):
         Block.__init__(self, x, y, color)
 
-class Food():
-    def __init__(self, x, y):
-        self.pos = Position(x,y)
+class Food(Block):
+    def __init__(self, x, y, color):
+        Block.__init__(self, x, y, color)
 
 class Position:
     def __init__(self, x, y):
