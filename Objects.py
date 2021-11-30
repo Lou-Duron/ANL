@@ -1,6 +1,5 @@
 import random
 from constants import Constants
-from typing import List
 
 DIRECTIONS = Constants.DIRECTIONS
 COLOR = Constants.COLOR
@@ -15,6 +14,8 @@ class Organism:
         self.direction: int = direction
         self.speed = speed
         self.vision = vision
+        self.food = 0
+        self.life  = 100
         self.blocks: list[Block] = []
         self.blocks.append(Head(x, y, COLOR.BLACK))
         self.head = self.blocks[0]
@@ -29,6 +30,17 @@ class Organism:
                 self.blocks.append(Body(x + i, y, color))
         self.center = self.blocks[1]
         
+    def eat(self, grid, food_dict):
+        for x in range(-1,1):
+            for y in range(-1,1):
+                if type(grid[self.pos.x + x][self.pos.y + y].block) is Food:
+                    self.food += 1
+                    print(self.food)
+                    #check reproduction
+                    del food_dict[grid[self.pos.x + x][self.pos.y + y].block.key]
+                    grid[self.pos.x + x][self.pos.y + y].block = None
+                    return True
+        return False
 
     def move_straight(self, step, grid):
         for block in self.blocks:
@@ -116,8 +128,9 @@ class Body(Block):
         Block.__init__(self, x, y, color)
 
 class Food(Block):
-    def __init__(self, x, y, color):
+    def __init__(self, x, y, color, key):
         Block.__init__(self, x, y, color)
+        self.key = key
 
 class Position:
     def __init__(self, x, y):
