@@ -31,16 +31,16 @@ class Organism:
         self.center = self.blocks[1]
         
     def eat(self, grid, food):
-        for x in range(-1,1):
-            for y in range(-1,1):
-                if type(grid[self.pos.x + x][self.pos.y + y].block) is Food:
-                    self.food += 1
-                    print(self.food)
-                    #check reproduction
-                    
-                    food.remove(grid[self.pos.x + x][self.pos.y + y].block)
-                    grid[self.pos.x + x][self.pos.y + y].block = None
-                    return True
+        for i in range(-1,2):
+            for j in range(-1,2):
+                x, y = self.head.pos.x + i , self.head.pos.y + j
+                if Position(x,y).is_in_grid(grid):
+                    if type(grid[x][y].block) is Food:
+                        self.food += 1                    
+                        food.remove(grid[x][y].block)
+                        grid[x][y].block = None
+                        print(len(food))
+                        return True
         return False
 
     def move_straight(self, step, grid):

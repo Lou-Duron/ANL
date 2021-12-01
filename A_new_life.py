@@ -14,7 +14,7 @@ block_size = 1
 window_width = screen_width
 window_height = screen_height
 window_pos = Position(0,0)
-clock_ticks = 5
+clock_ticks = 10    
 
 # Setup
 pygame.init()
@@ -24,8 +24,9 @@ game = Game(window_width, window_height)
 game_over = False
 clock = pygame.time.Clock()
 ##################################################################################################
-for i in range(20):
-    game.add_random_organism()
+
+#game.add_random_organism(20)
+game.add_random_food(1000)
 
 ##################################################################################################
 def draw_window():
@@ -35,7 +36,14 @@ def draw_window():
                 b = game.grid[x][y].block 
                 pygame.draw.rect(screen, b.color, [(b.pos.x - window_pos.x) * block_size, (b.pos.y - window_pos.y) * block_size, block_size, block_size])
 
-
+def draw_food_range():
+    for org in game.population:
+        for i in range(-1,2):
+                for j in range(-1,2):
+                    x, y = org.head.pos.x + i , org.head.pos.y + j
+                    if Position(x,y).is_in_grid(game.grid):
+                        pygame.draw.rect(screen, COLOR.VISION, [(x - window_pos.x) * block_size, (y - window_pos.y) * block_size, block_size, block_size])
+          
 def draw_organisms():
     for organism in game.population:
         for block in organism.blocks:
@@ -71,16 +79,15 @@ while not game_over:
     screen.fill(COLOR.BK)
 ##################################################################################################  
 # LOOP
-    game.add_random_organism()
-    #game.move_all_randomly()
-    game.add_random_food(5)
+    game.add_random_organism(1)
+    #game.add_random_food(5)
     game.check_organism_priority()
 ##################################################################################################  
     draw_organisms()
     draw_food()
+    #draw_food_range()
     #draw_window()
-    #draw_vision()
-
+    #draw_vision()  
 ##################################################################################################
 
     pygame.display.update()

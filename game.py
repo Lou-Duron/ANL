@@ -22,23 +22,27 @@ class Game:
             for j in range(height):
                 array.append(Square(i,j))
             self.grid.append(array)
+    
+    def remove_organism(self, organism: Organism):
+        for block in organism.blocks:
+            if block.pos.is_in_grid(self.grid):
+                self.grid[block.pos.x][block.pos.y].block = None
+        self.population.remove(organism)
+
+    def duplicate_organism(self, organism):
+        pass
 
     def check_organism_priority(self):
         for organism in self.population:
-            if organism.color != COLOR.BLUE:
-                organism.life -= 1
-            if organism.life == 0:
-                for b in organism.blocks:
-                    if b.pos.is_in_grid(self.grid):
-                        self.grid[b.pos.x][b.pos.y].block = None
-                self.population.remove(organism)
+            #organism.life -= 1 # Lose 1 life point
+            if organism.life == 0: # If life == 0
+                self.remove_organism(organism) 
             elif organism.food == 4:
                 organism.food = 0
-                organism.reproduce(self.grid)
+                print("================================================")
+                self.duplicate_organism(organism)
             elif not organism.eat(self.grid, self.food): # Eat if you can
                 organism.random_move(self.grid) # Else move randomly
-
-
 
     def get_square(self, position):
         return self.grid[position.x][position.y]
@@ -48,16 +52,13 @@ class Game:
         for b in organism.blocks:
             self.get_square(b.pos).block = b
     
-    def add_random_organism(self):
-        x = random.randint(3, len(self.grid) - 4)
-        y = random.randint(3, len(self.grid) - 4)
-        dir = random.randint(0,3)
-        col = random.choice(list(COLOR.ORG))
-        self.add_organism(Organism(x,y,col,dir,1, 10))
-
-    def move_all_randomly(self):
-        for organism in self.population:
-            organism.random_move(self.grid)
+    def add_random_organism(self, number):
+        for i in range(number):
+            x = random.randint(3, len(self.grid) - 4)
+            y = random.randint(3, len(self.grid) - 4)
+            dir = random.randint(0,3)
+            col = random.choice(list(COLOR.ORG))
+            self.add_organism(Organism(x,y,col,dir,1, 10))
     
     def add_food(self, x, y):
         if self.grid[x][y].block is None :
