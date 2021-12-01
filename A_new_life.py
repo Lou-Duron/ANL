@@ -43,8 +43,7 @@ def draw_organisms():
                 pygame.draw.rect(screen, block.color, [(block.pos.x - window_pos.x) * block_size, (block.pos.y - window_pos.y) * block_size, block_size, block_size])
 
 def draw_food():
-    for key in game.food.keys():
-        f = game.food[key]
+    for f in game.food:
         pygame.draw.rect(screen, COLOR.FOOD, [(f.pos.x - window_pos.x) * block_size, (f.pos.y - window_pos.y) * block_size, block_size, block_size])
 
 def draw_vision():
@@ -75,7 +74,7 @@ while not game_over:
     game.add_random_organism()
     #game.move_all_randomly()
     game.add_random_food(5)
-    game.check_organisme_priority()
+    game.check_organism_priority()
 ##################################################################################################  
     draw_organisms()
     draw_food()

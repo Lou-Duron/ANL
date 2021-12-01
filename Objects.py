@@ -30,14 +30,15 @@ class Organism:
                 self.blocks.append(Body(x + i, y, color))
         self.center = self.blocks[1]
         
-    def eat(self, grid, food_dict):
+    def eat(self, grid, food):
         for x in range(-1,1):
             for y in range(-1,1):
                 if type(grid[self.pos.x + x][self.pos.y + y].block) is Food:
                     self.food += 1
                     print(self.food)
                     #check reproduction
-                    del food_dict[grid[self.pos.x + x][self.pos.y + y].block.key]
+                    
+                    food.remove(grid[self.pos.x + x][self.pos.y + y].block)
                     grid[self.pos.x + x][self.pos.y + y].block = None
                     return True
         return False
@@ -128,10 +129,8 @@ class Body(Block):
         Block.__init__(self, x, y, color)
 
 class Food(Block):
-    def __init__(self, x, y, color, key):
+    def __init__(self, x, y, color):
         Block.__init__(self, x, y, color)
-        self.key = key
-
 class Position:
     def __init__(self, x, y):
         self.x = x

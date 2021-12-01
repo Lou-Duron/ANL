@@ -14,9 +14,8 @@ class Square:
 
 class Game:
     def __init__(self, width, height):
-        self.key = 0
         self.population: List[Organism] = []
-        self.food = {}
+        self.food = []
         self.grid: List[List[Square]] = []
         for i in range(width):
             array = []
@@ -24,7 +23,7 @@ class Game:
                 array.append(Square(i,j))
             self.grid.append(array)
 
-    def check_organisme_priority(self):
+    def check_organism_priority(self):
         for organism in self.population:
             if organism.color != COLOR.BLUE:
                 organism.life -= 1
@@ -62,9 +61,8 @@ class Game:
     
     def add_food(self, x, y):
         if self.grid[x][y].block is None :
-            f = Food(x, y, COLOR.FOOD, self.key)
-            self.food[self.key] = f
-            self.key += 1
+            f = Food(x, y, COLOR.FOOD)
+            self.food.append(f)
             self.grid[x][y].block = f
 
     def add_random_food(self, rate):
