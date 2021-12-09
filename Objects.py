@@ -4,8 +4,6 @@ from constants import Constants
 DIRECTIONS = Constants.DIRECTIONS
 COLOR = Constants.COLOR
 
-
-
 class Organism:
     
     def __init__(self, x, y, color, direction, speed, vision):
@@ -15,10 +13,11 @@ class Organism:
         self.speed = speed
         self.vision = vision
         self.food = 0
-        self.life  = 100
+        self.life = 1000
+        self.closest_food = None
         self.blocks: list[Block] = []
-        self.blocks.append(Head(x, y, COLOR.BLACK))
-        self.head = self.blocks[0]
+        self.head = Head(x, y, COLOR.BLACK)
+        self.blocks.append(self.head)
         for i in range(1, 4):
             if self.direction == DIRECTIONS.NORTH:
                 self.blocks.append(Body(x, y + i, color))
@@ -28,8 +27,12 @@ class Organism:
                 self.blocks.append(Body(x, y - i, color))
             elif self.direction == DIRECTIONS.WEST: 
                 self.blocks.append(Body(x + i, y, color))
-        self.center = self.blocks[1]
+        self.center = self.blocks[1] # Get center
+
+    def mutate(self):
         
+        pass
+
     def eat(self, grid, food):
         for i in range(-1,2):
             for j in range(-1,2):
@@ -39,7 +42,7 @@ class Organism:
                         self.food += 1                    
                         food.remove(grid[x][y].block)
                         grid[x][y].block = None
-                        print(len(food))
+                        self.life += 20 # Expanding life for 20 time units
                         return True
         return False
 
@@ -58,9 +61,10 @@ class Organism:
         for block in self.blocks:
             if block.pos.is_in_grid(grid):
                 grid[block.pos.x][block.pos.y].block = block
+        self.pos = self.head.pos
 
     def rotate(self, clock_wise, grid):
-        #get center
+        # get center
         cw = -1
         if clock_wise: cw = 1
         self.direction = (self.direction + cw) % 4
@@ -71,6 +75,16 @@ class Organism:
             delta_y = block.pos.y - self.center.pos.y
             block.pos.x = self.center.pos.x + (-cw * delta_y)
             block.pos.y = self.center.pos.y + (cw * delta_x)
+
+
+    def rotate_towards_direction(self, current_dir, aim_dir, grid):
+        if abs(current_dir - aim_dir) % 2 != 0:
+            if current_dir - aim_dir == -1 or current_dir - aim_dir == 3 :
+                self.rotate(True, grid)
+            else:
+                self.rotate(False, grid)
+        else:
+            self.rotate(True, grid)
 
     def random_move(self, grid):
         r = random.randint(0, 3)
@@ -83,42 +97,70 @@ class Organism:
         else:
             self.move_straight(self.speed, grid)
 
+    def update_closest_food(self, grid):
+        if self.closest_food is not None:
+            min_dist = self.head.pos.distance_to(self.closest_food.pos)
+            if type(grid[self.closest_food.pos.x][self.closest_food.pos.y].block) is not Food:
+                self.closest_food = None
+                min_dist = 10000
+        else:
+            min_dist = 10000
+        for s in self.get_vision(grid):
+            if type(s.block) is Food:
+                dist = self.head.pos.distance_to(s.pos)
+                if dist < min_dist:
+                    self.closest_food = s.block
+                    min_dist = dist
+        
+    
+    def go_towards_food(self, grid):
+        self.update_closest_food(grid)
+        if self.closest_food is not None:
+            dir_to_food = self.head.pos.direction_to(self.closest_food.pos)
+            if self.direction != dir_to_food:
+                self.rotate_towards_direction(self.direction, dir_to_food, grid)
+            else:
+                self.move_straight(self.speed, grid)
+        else:
+            self.random_move(grid)
+
+
     def get_vision(self, grid):
-        block = []
-        if self.direction == 0 :
+        squares = []
+        if self.direction == DIRECTIONS.NORTH :
             for x in range(self.head.pos.x - self.vision, self.head.pos.x + self.vision + 1):
                 for y in range(self.head.pos.y - self.vision , self.head.pos.y):
-                    if abs(self.head.pos.x - x) + abs(self.head.pos.y - y) <= self.vision:
-                        if x > 0 and x < len(grid) - 1 and  y > 0  and y < len(grid) - 1:
-                            block.append(grid[x][y])
-        elif self.direction == 1: 
+                    square_pos = Position(x,y)
+                    if square_pos.distance_to(self.head.pos) <= self.vision:
+                        if square_pos.is_in_grid(grid):  
+                            squares.append(grid[x][y])
+        elif self.direction == DIRECTIONS.EAST: 
             for x in range(self.head.pos.x + 1, self.head.pos.x + self.vision + 1):
                 for y in range(self.head.pos.y - self.vision, self.head.pos.y + self.vision + 1):
-                    if abs(self.head.pos.x - x) + abs(self.head.pos.y - y) <= self.vision:
-                        if x > 0 and x < len(grid) - 1 and  y > 0  and y < len(grid) - 1:
-                            block.append(grid[x][y])
-        elif self.direction == 2: 
+                    square_pos = Position(x,y)
+                    if square_pos.distance_to(self.head.pos) <= self.vision:
+                        if square_pos.is_in_grid(grid):  
+                            squares.append(grid[x][y])
+        elif self.direction == DIRECTIONS.SOUTH: 
             for x in range(self.head.pos.x - self.vision, self.head.pos.x + self.vision + 1):
                 for y in range(self.head.pos.y + 1 , self.head.pos.y + self.vision + 2):
-                    if abs(self.head.pos.x - x) + abs(self.head.pos.y - y) <= self.vision:
-                        if x > 0 and x < len(grid) - 1 and  y > 0  and y < len(grid) - 1:
-                            block.append(grid[x][y])
-        elif self.direction == 3: 
+                    square_pos = Position(x,y)
+                    if square_pos.distance_to(self.head.pos) <= self.vision:
+                        if square_pos.is_in_grid(grid):  
+                            squares.append(grid[x][y])
+        elif self.direction == DIRECTIONS.WEST: 
             for x in range(self.head.pos.x - self.vision, self.head.pos.x):
                 for y in range(self.head.pos.y - self.vision, self.head.pos.y + self.vision):
-                    if abs(self.head.pos.x - x) + abs(self.head.pos.y - y) <= self.vision:
-                        if x > 0 and x < len(grid) - 1 and  y > 0  and y < len(grid) - 1:
-                            block.append(grid[x][y])
-        return block
+                    square_pos = Position(x,y)
+                    if square_pos.distance_to(self.head.pos) <= self.vision:
+                        if square_pos.is_in_grid(grid):  
+                            squares.append(grid[x][y])
+        return squares
 
 class Block:       
-   
    def __init__(self, x, y, color):
       self.pos = Position(x,y)
       self.color = color
-
-
-
    
 class Head(Block):
     def __init__(self, x, y, color):
@@ -131,6 +173,7 @@ class Body(Block):
 class Food(Block):
     def __init__(self, x, y, color):
         Block.__init__(self, x, y, color)
+
 class Position:
     def __init__(self, x, y):
         self.x = x
@@ -163,7 +206,7 @@ class Position:
             return Position(self.x, self.y + units)
         elif direction == DIRECTIONS.WEST:
             return Position(self.x - units, self.y)
-        elif direction == DIRECTIONS.CENTER:
+        elif direction == 5:
             return Position(self.x, self.y)
 
     def direction_to(self, target_pos: 'Position') -> DIRECTIONS:
@@ -177,7 +220,7 @@ class Position:
             DIRECTIONS.WEST,
         ]
         closest_dist = self.distance_to(target_pos)
-        closest_dir = DIRECTIONS.CENTER
+        closest_dir = 5
         for direction in check_dirs:
             newpos = self.translate(direction, 1)
             dist = target_pos.distance_to(newpos)
@@ -187,4 +230,4 @@ class Position:
         return closest_dir
     
     def is_in_grid(self, grid):
-        return self.x >= 0 and self.x < len(grid) and  self.y >= 0  and self.y < len(grid)
+        return self.x >= 0 and self.x < len(grid) and  self.y >= 0  and self.y < len(grid[0])
