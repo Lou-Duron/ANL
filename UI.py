@@ -2,33 +2,8 @@ import pygame
 from constants import Constants
 
 COLOR = Constants.COLOR
-font = pygame.font.SysFont("Verdana", 12)
+FONT = Constants.FONT
 
-class Value_traking():
-    def __init__(self, name, value, pos_y):
-        self.name = name
-        self.value = value
-        self.xpos = 0  # x-location on screen
-        self.ypos = pos_y
-        self.surf = pygame.surface.Surface((100, 50))
-        self.txt_surf = font.render(f"{name} : {value}", 1, COLOR.BLACK)
-        self.txt_rect = self.txt_surf.get_rect(center=(50, 15))
-        
-        pygame.draw.rect(self.surf, COLOR.BLUE, [0, 0, 100, 50], 3)
-        pygame.draw.rect(self.surf, COLOR.ORANGE, [10, 10, 80, 10], 0)
-        pygame.draw.rect(self.surf, COLOR.FOOD, [10, 30, 80, 5], 0)
-        self.surf.blit(self.txt_surf, self.txt_rect)
-
-    def update_value(self, x):
-        self.value += x    
-        self.txt_surf = font.render(f"{self.name} : {self.value}", 1, COLOR.BLACK)
-
-    def draw(self,screen):
-        self.surf.fill((100, 100, 100))
-        self.surf.blit(self.txt_surf, self.txt_rect)
-        screen.blit(self.surf, (self.xpos, self.ypos))
-
- 
 class Slider():
     def __init__(self, name, val, maxi, mini, pos):
         self.val = val  # start value
@@ -39,7 +14,7 @@ class Slider():
         self.surf = pygame.surface.Surface((100, 50))
         self.hit = False  # the hit attribute indicates slider movement due to mouse interaction
  
-        self.txt_surf = font.render(name, 1, COLOR.BLACK)
+        self.txt_surf = FONT.arial.render(name, 1, COLOR.BLACK)
         self.txt_rect = self.txt_surf.get_rect(center=(50, 15))
  
         # Static graphics - slider background #

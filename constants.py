@@ -1,3 +1,5 @@
+import pygame
+
 class Constants:
     
     class COLOR:
@@ -13,6 +15,10 @@ class Constants:
         TRANS = (1, 1, 1)    
         ORG = [RED, ORANGE, BLUE, GREEN, YELLOW]
         
+    class FONT:
+        verdana = pygame.font.SysFont("Verdana", 12)
+        arial = pygame.font.SysFont("Arial", 12)
+
     class DIRECTIONS():
         NORTH = 0
         EAST = 1
