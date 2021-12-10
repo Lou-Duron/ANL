@@ -33,8 +33,7 @@ class Game:
                 array.append(Square(i,j))
             self.grid.append(array)
 
-    def is_in_grid(self, x, y):
-        return x >= 0 and x < self.width and  y >= 0  and y < self.height
+######################################################################################################
 
     def check_organism_priority(self):
         for organism in self.population:
@@ -43,19 +42,23 @@ class Game:
                 self.remove_organism(organism) 
             elif organism.food == 4:
                 organism.food = 0
-                if organism.color == COLOR.RED:
+                if organism.color == COLOR.ORANGE:
                     self.duplicate_organism(organism)
             elif not organism.eat(self): # Eat if you can
                 #organism.go_towards_food(self.grid)
                 organism.random_move(self) # Else move randomly
+
+######################################################################################################
+
+    def is_in_grid(self, x, y):
+        return x >= 0 and x < self.width and  y >= 0  and y < self.height
 
     def get_square(self, position):
         return self.grid[position.x][position.y]
 
     def remove_organism(self, organism: Organism):
         for block in organism.blocks:
-            if block.pos.is_in_grid(self.grid):
-                self.grid[block.pos.x][block.pos.y].block = None
+            self.grid[block.pos.x][block.pos.y].block = None
         self.population.remove(organism)
 
     def duplicate_organism(self, org: Organism):

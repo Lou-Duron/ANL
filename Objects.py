@@ -30,42 +30,54 @@ class Organism:
         # ROTATION AROUND CENTER ?
         pass
 
-    def eat(self, g):
+    def eat(self, game):
         for i in range(-1,2):
             for j in range(-1,2):
                 x, y = self.pos.x + i , self.pos.y + j
-                if g.is_in_grid(x,y):
-                    if type(g.grid[x][y].block) is Food:
+                if game.is_in_grid(x,y):
+                    if type(game.grid[x][y].block) is Food:
                         self.food += 1                    
-                        g.food.remove(g.grid[x][y].block)
-                        g.grid[x][y].block = None
+                        game.food.remove(game.grid[x][y].block)
+                        game.grid[x][y].block = None
                         self.life += 20 # Expanding life for 20 time units # MUT ?
                         return True
         return False
 
-    def move_straight(self, step, grid):
-        for block in self.blocks:
-            if block.pos.is_in_grid(grid):
-                grid[block.pos.x][block.pos.y].block = None
-            if self.direction == DIRECTIONS.NORTH:
-                block.pos.y -= step
-            elif self.direction == DIRECTIONS.EAST: 
-                block.pos.x += step
-            elif self.direction == DIRECTIONS.SOUTH: 
-                block.pos.y += step
-            elif self.direction == DIRECTIONS.WEST: 
-                block.pos.x -= step
-        for block in self.blocks:
-            if block.pos.is_in_grid(grid):
-                grid[block.pos.x][block.pos.y].block = block
-        self.pos = self.blocks[0].pos
+    def move_straight(self, step, game):
+        # Try to move else -> False(Always head first)
+        x, y = self.pos.x, self.pos.y 
+        if self.direction == DIRECTIONS.NORTH:
+            y = self.pos.y - step
+        elif self.direction == DIRECTIONS.EAST: 
+            x = self.pos.x + step
+        elif self.direction == DIRECTIONS.SOUTH: 
+            y = self.pos.y + step
+        elif self.direction == DIRECTIONS.WEST: 
+            x = self.pos.x - step
+        # Move - True
+        if game.is_in_grid(x,y):
+            for block in self.blocks:
+                if self.direction == DIRECTIONS.NORTH:
+                    block.pos.y -= step
+                elif self.direction == DIRECTIONS.EAST: 
+                    block.pos.x += step
+                elif self.direction == DIRECTIONS.SOUTH: 
+                    block.pos.y += step
+                elif self.direction == DIRECTIONS.WEST: 
+                    block.pos.x -= step
+            for block in self.blocks:
+                game.grid[block.pos.x][block.pos.y].block = block
+            self.pos = self.blocks[0].pos
+            return True
+        else:
+            return False
 
     def rotate(self, clock_wise, game) -> bool:
         cw = -1
         if clock_wise: cw = 1
         blocks = []
         new_pos = []
-        #try to rotate
+        # Try to rotate else -> False
         for block in self.blocks:
             delta_x = block.pos.x - self.pos.x
             delta_y = block.pos.y - self.pos.y
@@ -74,34 +86,14 @@ class Organism:
             if game.is_in_grid(new_x, new_y):
                 blocks.append(block)
                 new_pos.append([new_x,new_y])
-                #dic
             else :
                 return False
+        # Rotate -> true
         for i, b in enumerate(blocks):
             b.pos.x = new_pos[i][0] 
             b.pos.y = new_pos[i][1]
         self.direction = (self.direction + cw) % 4
         return True
-        ####
-        
-        self.direction = (self.direction + cw) % 4
-        for block in self.blocks:
-            if block.pos.is_in_grid(grid):
-                grid[block.pos.x][block.pos.y].block = None
-            delta_x = block.pos.x - self.pos.x
-            delta_y = block.pos.y - self.pos.y
-            block.pos.x = self.pos.x + (-cw * delta_y)
-            block.pos.y = self.pos.y + (cw * delta_x)
-
-
-    def rotate_towards_direction(self, current_dir, aim_dir, grid):
-        if abs(current_dir - aim_dir) % 2 != 0:
-            if current_dir - aim_dir == -1 or current_dir - aim_dir == 3 :
-                self.rotate(True, grid)
-            else:
-                self.rotate(False, grid)
-        else:
-            self.rotate(True, grid)
 
     def random_move(self, game):
         r = random.randint(0, 4)
@@ -112,7 +104,19 @@ class Organism:
             else:
                 self.rotate(False, game)
         else:
-            self.move_straight(self.speed, game.grid)
+            self.move_straight(self.speed, game)
+
+######################################################################################################
+    def rotate_towards_direction(self, current_dir, aim_dir, grid):
+        if abs(current_dir - aim_dir) % 2 != 0:
+            if current_dir - aim_dir == -1 or current_dir - aim_dir == 3 :
+                self.rotate(True, grid)
+            else:
+                self.rotate(False, grid)
+        else:
+            self.rotate(True, grid)
+
+
 
     def update_closest_food(self, grid):
         if self.closest_food is not None:
@@ -140,7 +144,7 @@ class Organism:
                 self.move_straight(self.speed, grid)
         else:
             self.random_move(grid)
-
+######################################################################################################
     def get_vision(self, game):
         blocks = []
         for x in range(self.pos.x - self.vision, self.pos.x + self.vision + 1):
@@ -218,5 +222,3 @@ class Position:
                 closest_dir = direction
                 closest_dist = dist
         return closest_dir
-    def is_in_grid(self, grid):
-        return self.x >= 0 and self.x < len(grid) and  self.y >= 0  and self.y < len(grid[0])

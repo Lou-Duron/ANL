@@ -25,5 +25,4 @@ class Constants:
         SOUTH = 2
         WEST = 3
 
-
         

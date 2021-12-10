@@ -50,8 +50,7 @@ def draw_food_range():
 def draw_organisms():
     for organism in game.population:
         for block in organism.blocks:
-            if block.pos.is_in_grid(game.grid):  
-                pygame.draw.rect(screen, block.color, [(block.pos.x - window_pos.x) * block_size, (block.pos.y - window_pos.y) * block_size, block_size, block_size])
+            pygame.draw.rect(screen, block.color, [(block.pos.x - window_pos.x) * block_size, (block.pos.y - window_pos.y) * block_size, block_size, block_size])
 
 def draw_food():
     for f in game.food:
@@ -125,7 +124,7 @@ while not game_over:
      
     draw_organisms()
     draw_food()
-    draw_vision()
+    #draw_vision()
     #draw_window()
     screen.blit(update_fps(), (10,0))
     for s in slides:
