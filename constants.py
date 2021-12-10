@@ -9,7 +9,8 @@ class Constants:
         BLACK = (0, 0, 0)
         BK = (30, 32, 35)
         VISION = (215,215,215)
-        FOOD = (50, 118, 51)        
+        FOOD = (50, 118, 51)    
+        TRANS = (1, 1, 1)    
         ORG = [RED, ORANGE, BLUE, GREEN, YELLOW]
         
     class DIRECTIONS():

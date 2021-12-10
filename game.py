@@ -48,7 +48,7 @@ class Game:
 
     def duplicate_organism(self, org: Organism):
         x = random.randint(3, len(self.grid) - 4) # Not random
-        y = random.randint(3, len(self.grid) - 4)
+        y = random.randint(3, len(self.grid[0]) - 4)
         self.add_organism(Organism(x, y, org.color, org.direction, org.speed, org.vision))
     
     def add_organism(self, organism):
