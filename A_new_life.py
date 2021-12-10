@@ -1,6 +1,6 @@
 import pygame
 pygame.init()
-from Objects import *
+from Organisms import *
 from game import Game
 from constants import Constants
 from UI import Slider
@@ -17,7 +17,7 @@ fps = 60
 window_width = screen_width
 window_height = screen_height
 window_pos = Position(0,0)
-
+frame_count = 0
 # Setup
 pygame.display.set_caption('A new life')
 screen = pygame.display.set_mode((screen_width, screen_height))
@@ -63,25 +63,17 @@ def draw_vision():
         for block in vision:
             pygame.draw.rect(screen, COLOR.VISION, [(block.pos.x - window_pos.x) * block_size, (block.pos.y - window_pos.y) * block_size, block_size, block_size])
 
-def update_fps():
-	fps = str(int(clock.get_fps()))
-	fps_text = FONT.arial.render(fps, 1, COLOR.ORANGE)
-	return fps_text
+def update_variables():
+    var = []
+    fps = str(int(clock.get_fps()))
+    var.append(FONT.arial.render(f"FPS : {fps}", 1, COLOR.ORANGE))
+    var.append(FONT.arial.render(f"Org : {len(game.population)}", 1, COLOR.ORANGE))
+    var.append(FONT.arial.render(f"Food : {len(game.food)}", 1, COLOR.ORANGE))
+    var.append(FONT.arial.render(f"Frame : {frame_count}", 1, COLOR.ORANGE))
+    return var
 
 ##################################################################################################
-
-#game.add_random_organism(1)
-#print(Position(100,100).direction_to(Position(105,99)))
-#print(Position(101,101).direction_to(Position(105,99)))
-#test = Organism(100,100, COLOR.RED, 0, 1, 10)
 game.add_random_organism(100)
-#game.add_organism(test)
-#game.add_food(105, 99)
-#game.add_food(110, 100)
-#game.add_food(115, 100)
-#game.add_random_food(1000)
-
-##################################################################################################
 ##################################################################################################
 #shortkey
 #pause/play
@@ -92,6 +84,7 @@ game.add_random_organism(100)
 
 
 while not game_over:
+    frame_count += 1
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             game_over = True
@@ -115,7 +108,7 @@ while not game_over:
                 s.hit = False
 ##################################################################################################  
     if speed.val != 5:
-        #game.add_random_organism(1)
+        game.add_random_organism(1)
         game.add_random_food(5)
         game.check_organism_priority()
 ##################################################################################################  
@@ -126,7 +119,8 @@ while not game_over:
     draw_food()
     #draw_vision()
     #draw_window()
-    screen.blit(update_fps(), (10,0))
+    for i, var in enumerate(update_variables()):
+        screen.blit(var, (10,i* 15))
     for s in slides:
         if s.hit:
             s.move()

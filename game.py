@@ -1,15 +1,16 @@
 import random
 from constants import Constants
+from Organisms import *
 from Objects import *
 from typing import List
 
 DIRECTIONS = Constants.DIRECTIONS
 COLOR = Constants.COLOR
 '''
-New vision
-organism can step on food
+New vision -> Meh
+WALL
 Better duplicate
-food when died
+food when died#
 copy org
 colision
 '''
@@ -58,12 +59,16 @@ class Game:
 
     def remove_organism(self, organism: Organism):
         for block in organism.blocks:
-            self.grid[block.pos.x][block.pos.y].block = None
+            f = Food(block.pos.x, block.pos.y, COLOR.FOOD)
+            self.grid[block.pos.x][block.pos.y].block = f
+            self.food.append(f)
         self.population.remove(organism)
 
     def duplicate_organism(self, org: Organism):
+        
         x = random.randint(3, len(self.grid) - 4) # Not random
         y = random.randint(3, len(self.grid[0]) - 4)
+        new_org = org.copy()
         self.add_organism(Organism(x, y, org.color, org.direction, org.speed, org.vision))
     
     def add_organism(self, organism):
