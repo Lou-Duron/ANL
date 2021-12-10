@@ -10,7 +10,7 @@ COLOR = Constants.COLOR
 FONT = Constants.FONT
 
 # Variables
-screen_width = 1350
+screen_width = 750
 screen_height  = 700
 block_size = 1
 fps = 60
@@ -25,7 +25,7 @@ game = Game(window_width, window_height)
 game_over = False
 clock = pygame.time.Clock()
 #Name, value, max, min, pos.x
-speed = Slider("Speed", 50, 100, 5, 775)
+speed = Slider("FPS", fps, 61, 5, 345)
 slides = [speed]
 
 def draw_window():
@@ -35,11 +35,12 @@ def draw_window():
                 b: Block = game.grid[x][y].block 
                 pygame.draw.rect(screen, b.color, [(b.pos.x - window_pos.x) * block_size, (b.pos.y - window_pos.y) * block_size, block_size, block_size])
 
+
 def draw_food_range():
     for org in game.population:
         for i in range(-1,2):
                 for j in range(-1,2):
-                    x, y = org.head.pos.x + i , org.head.pos.y + j
+                    x, y = org.pos.x + i , org.pos.y + j
                     if Position(x,y).is_in_grid(game.grid):
                         pygame.draw.rect(screen, COLOR.VISION, [(x - window_pos.x) * block_size, (y - window_pos.y) * block_size, block_size, block_size])
           
@@ -59,9 +60,9 @@ def draw_food():
 
 def draw_vision():
     for organism in game.population:
-        vision = organism.get_vision(game.grid)
-        for square in vision:
-            pygame.draw.rect(screen, COLOR.VISION, [(square.x - window_pos.x) * block_size, (square.y - window_pos.y) * block_size, block_size, block_size])
+        vision = organism.get_vision(game)
+        for block in vision:
+            pygame.draw.rect(screen, COLOR.VISION, [(block.pos.x - window_pos.x) * block_size, (block.pos.y - window_pos.y) * block_size, block_size, block_size])
 
 def update_fps():
 	fps = str(int(clock.get_fps()))
@@ -117,15 +118,14 @@ while not game_over:
     if speed.val != 5:
         #game.add_random_organism(1)
         game.add_random_food(5)
-        #print(test.head.pos.x, test.head.pos.y)
         game.check_organism_priority()
 ##################################################################################################  
 #draw
     screen.fill(COLOR.BK)
+     
     draw_organisms()
     draw_food()
-    #draw_vision() 
-    #draw_food_range()
+    draw_vision()
     #draw_window()
     screen.blit(update_fps(), (10,0))
     for s in slides:
@@ -134,9 +134,10 @@ while not game_over:
         s.draw(screen)
 ##################################################################################################
     pygame.display.update()
-    clock.tick(99999999)
-    #if speed.val != 100: 
-     #   clock.tick(speed.val)
+    if speed.val == 61:
+        clock.tick(200)
+    else: 
+        clock.tick(speed.val)
 pygame.display.update() 
 pygame.quit()
 quit()

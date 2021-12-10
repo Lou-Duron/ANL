@@ -5,19 +5,17 @@ DIRECTIONS = Constants.DIRECTIONS
 COLOR = Constants.COLOR
 
 class Organism:
-    
+    food = 0
+    life = 1000
     def __init__(self, x, y, color, direction, speed, vision):
         self.pos = Position(x,y)
         self.color = color
         self.direction: int = direction
         self.speed = speed
         self.vision = vision
-        self.food = 0
-        self.life = 1000
         self.closest_food = None
         self.blocks: list[Block] = []
-        self.head = Head(x, y, COLOR.BLACK)
-        self.blocks.append(self.head)
+        self.blocks.append(Block(x, y, COLOR.BLACK))
         for i in range(1, 4):
             if self.direction == DIRECTIONS.NORTH:
                 self.blocks.append(Body(x, y + i, color))
@@ -27,22 +25,21 @@ class Organism:
                 self.blocks.append(Body(x, y - i, color))
             elif self.direction == DIRECTIONS.WEST: 
                 self.blocks.append(Body(x + i, y, color))
-        self.center = self.blocks[1] # Get center
 
     def mutate(self):
-        
+        # ROTATION AROUND CENTER ?
         pass
 
-    def eat(self, grid, food):
+    def eat(self, g):
         for i in range(-1,2):
             for j in range(-1,2):
-                x, y = self.head.pos.x + i , self.head.pos.y + j
-                if Position(x,y).is_in_grid(grid):
-                    if type(grid[x][y].block) is Food:
+                x, y = self.pos.x + i , self.pos.y + j
+                if g.is_in_grid(x,y):
+                    if type(g.grid[x][y].block) is Food:
                         self.food += 1                    
-                        food.remove(grid[x][y].block)
-                        grid[x][y].block = None
-                        self.life += 20 # Expanding life for 20 time units
+                        g.food.remove(g.grid[x][y].block)
+                        g.grid[x][y].block = None
+                        self.life += 20 # Expanding life for 20 time units # MUT ?
                         return True
         return False
 
@@ -61,20 +58,40 @@ class Organism:
         for block in self.blocks:
             if block.pos.is_in_grid(grid):
                 grid[block.pos.x][block.pos.y].block = block
-        self.pos = self.head.pos
+        self.pos = self.blocks[0].pos
 
-    def rotate(self, clock_wise, grid):
-        # get center
+    def rotate(self, clock_wise, game) -> bool:
         cw = -1
         if clock_wise: cw = 1
+        blocks = []
+        new_pos = []
+        #try to rotate
+        for block in self.blocks:
+            delta_x = block.pos.x - self.pos.x
+            delta_y = block.pos.y - self.pos.y
+            new_x = self.pos.x + (-cw * delta_y)
+            new_y = self.pos.y + (cw * delta_x)
+            if game.is_in_grid(new_x, new_y):
+                blocks.append(block)
+                new_pos.append([new_x,new_y])
+                #dic
+            else :
+                return False
+        for i, b in enumerate(blocks):
+            b.pos.x = new_pos[i][0] 
+            b.pos.y = new_pos[i][1]
+        self.direction = (self.direction + cw) % 4
+        return True
+        ####
+        
         self.direction = (self.direction + cw) % 4
         for block in self.blocks:
             if block.pos.is_in_grid(grid):
                 grid[block.pos.x][block.pos.y].block = None
-            delta_x = block.pos.x - self.center.pos.x
-            delta_y = block.pos.y - self.center.pos.y
-            block.pos.x = self.center.pos.x + (-cw * delta_y)
-            block.pos.y = self.center.pos.y + (cw * delta_x)
+            delta_x = block.pos.x - self.pos.x
+            delta_y = block.pos.y - self.pos.y
+            block.pos.x = self.pos.x + (-cw * delta_y)
+            block.pos.y = self.pos.y + (cw * delta_x)
 
 
     def rotate_towards_direction(self, current_dir, aim_dir, grid):
@@ -86,20 +103,20 @@ class Organism:
         else:
             self.rotate(True, grid)
 
-    def random_move(self, grid):
-        r = random.randint(0, 3)
+    def random_move(self, game):
+        r = random.randint(0, 4)
         if r == 0:
             r2 = random.randint(0,1)
             if r2 == 0:
-                self.rotate(True, grid)
+                self.rotate(True, game)
             else:
-                self.rotate(False, grid)
+                self.rotate(False, game)
         else:
-            self.move_straight(self.speed, grid)
+            self.move_straight(self.speed, game.grid)
 
     def update_closest_food(self, grid):
         if self.closest_food is not None:
-            min_dist = self.head.pos.distance_to(self.closest_food.pos)
+            min_dist = self.pos.distance_to(self.closest_food.pos)
             if type(grid[self.closest_food.pos.x][self.closest_food.pos.y].block) is not Food:
                 self.closest_food = None
                 min_dist = 10000
@@ -107,7 +124,7 @@ class Organism:
             min_dist = 10000
         for s in self.get_vision(grid):
             if type(s.block) is Food:
-                dist = self.head.pos.distance_to(s.pos)
+                dist = self.pos.distance_to(s.pos)
                 if dist < min_dist:
                     self.closest_food = s.block
                     min_dist = dist
@@ -116,7 +133,7 @@ class Organism:
     def go_towards_food(self, grid):
         self.update_closest_food(grid)
         if self.closest_food is not None:
-            dir_to_food = self.head.pos.direction_to(self.closest_food.pos)
+            dir_to_food = self.pos.direction_to(self.closest_food.pos)
             if self.direction != dir_to_food:
                 self.rotate_towards_direction(self.direction, dir_to_food, grid)
             else:
@@ -124,47 +141,20 @@ class Organism:
         else:
             self.random_move(grid)
 
-
-    def get_vision(self, grid):
-        squares = []
-        if self.direction == DIRECTIONS.NORTH :
-            for x in range(self.head.pos.x - self.vision, self.head.pos.x + self.vision + 1):
-                for y in range(self.head.pos.y - self.vision , self.head.pos.y):
-                    square_pos = Position(x,y)
-                    if square_pos.distance_to(self.head.pos) <= self.vision:
-                        if square_pos.is_in_grid(grid):  
-                            squares.append(grid[x][y])
-        elif self.direction == DIRECTIONS.EAST: 
-            for x in range(self.head.pos.x + 1, self.head.pos.x + self.vision + 1):
-                for y in range(self.head.pos.y - self.vision, self.head.pos.y + self.vision + 1):
-                    square_pos = Position(x,y)
-                    if square_pos.distance_to(self.head.pos) <= self.vision:
-                        if square_pos.is_in_grid(grid):  
-                            squares.append(grid[x][y])
-        elif self.direction == DIRECTIONS.SOUTH: 
-            for x in range(self.head.pos.x - self.vision, self.head.pos.x + self.vision + 1):
-                for y in range(self.head.pos.y + 1 , self.head.pos.y + self.vision + 2):
-                    square_pos = Position(x,y)
-                    if square_pos.distance_to(self.head.pos) <= self.vision:
-                        if square_pos.is_in_grid(grid):  
-                            squares.append(grid[x][y])
-        elif self.direction == DIRECTIONS.WEST: 
-            for x in range(self.head.pos.x - self.vision, self.head.pos.x):
-                for y in range(self.head.pos.y - self.vision, self.head.pos.y + self.vision):
-                    square_pos = Position(x,y)
-                    if square_pos.distance_to(self.head.pos) <= self.vision:
-                        if square_pos.is_in_grid(grid):  
-                            squares.append(grid[x][y])
-        return squares
+    def get_vision(self, game):
+        blocks = []
+        for x in range(self.pos.x - self.vision, self.pos.x + self.vision + 1):
+            for y in range(self.pos.y - self.vision , self.pos.y + self.vision + 1):
+                if game.is_in_grid(x,y):
+                    i = 0
+                    #if grid[x][y].block is not None and grid[x][y].block not in self.blocks:
+                    #blocks.append(grid[x][y].block)
+        return blocks
 
 class Block:       
    def __init__(self, x, y, color):
       self.pos = Position(x,y)
       self.color = color
-   
-class Head(Block):
-    def __init__(self, x, y, color):
-        Block.__init__(self, x, y, color)
 
 class Body(Block):
    def __init__(self, x, y, color):
@@ -228,6 +218,5 @@ class Position:
                 closest_dir = direction
                 closest_dist = dist
         return closest_dir
-    
     def is_in_grid(self, grid):
         return self.x >= 0 and self.x < len(grid) and  self.y >= 0  and self.y < len(grid[0])

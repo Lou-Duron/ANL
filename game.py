@@ -5,7 +5,14 @@ from typing import List
 
 DIRECTIONS = Constants.DIRECTIONS
 COLOR = Constants.COLOR
-
+'''
+New vision
+organism can step on food
+Better duplicate
+food when died
+copy org
+colision
+'''
 class Square:
     def __init__(self,x,y):
       self.block = None
@@ -18,11 +25,16 @@ class Game:
         self.population: List[Organism] = []
         self.food = []
         self.grid: List[List[Square]] = []
+        self.width = width
+        self.height = height
         for i in range(width):
             array = []
             for j in range(height):
                 array.append(Square(i,j))
             self.grid.append(array)
+
+    def is_in_grid(self, x, y):
+        return x >= 0 and x < self.width and  y >= 0  and y < self.height
 
     def check_organism_priority(self):
         for organism in self.population:
@@ -33,9 +45,9 @@ class Game:
                 organism.food = 0
                 if organism.color == COLOR.RED:
                     self.duplicate_organism(organism)
-            elif not organism.eat(self.grid, self.food): # Eat if you can
+            elif not organism.eat(self): # Eat if you can
                 #organism.go_towards_food(self.grid)
-                organism.random_move(self.grid) # Else move randomly
+                organism.random_move(self) # Else move randomly
 
     def get_square(self, position):
         return self.grid[position.x][position.y]

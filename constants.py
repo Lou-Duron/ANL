@@ -14,7 +14,7 @@ class Constants:
         FOOD = (50, 118, 51)    
         TRANS = (1, 1, 1)    
         ORG = [RED, ORANGE, BLUE, GREEN, YELLOW]
-        
+
     class FONT:
         verdana = pygame.font.SysFont("Verdana", 12)
         arial = pygame.font.SysFont("Arial", 12)
@@ -24,5 +24,6 @@ class Constants:
         EAST = 1
         SOUTH = 2
         WEST = 3
-        
+
+
         
