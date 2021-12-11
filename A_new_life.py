@@ -77,9 +77,6 @@ def update_variables():
 
 ##################################################################################################
 game.add_random_organism(100)
-test = Organism(100, 100, COLOR.GREEN, DIRECTIONS.EAST, 1, 10)
-test.init_basic_org()
-game.add_organism(test)
 ##################################################################################################
 #shortkey
 #pause/play
@@ -116,10 +113,9 @@ while not game_over:
         elif event.type == pygame.KEYDOWN:
             if event.key == pygame.K_SPACE:
                pause = False
-
-    if not pause : # WARNING : Not working properly (sliders and frame)
-        frame_count += 1
 ##################################################################################################  
+    if not pause : 
+        frame_count += 1
         #game.add_random_organism(1)
         game.add_random_food(10)
         game.check_organism_priority()

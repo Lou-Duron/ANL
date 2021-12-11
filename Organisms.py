@@ -35,7 +35,51 @@ class Organism:
         for block in self.blocks:
             new_org.blocks.append(Block(block.pos.x, block.pos.y, block.color))
         return new_org
+    def move_straight(self, step, game): # Return true if successful
+        new_pos = []
+        for block in self.blocks:
+            x, y = block.pos.x, block.pos.y 
+            if self.direction == DIRECTIONS.NORTH:
+                y -= step
+            elif self.direction == DIRECTIONS.EAST: 
+                x += step
+            elif self.direction == DIRECTIONS.SOUTH: 
+                y += step
+            elif self.direction == DIRECTIONS.WEST: 
+                x -= step
+            new_pos.append([x,y])
+        if game.org_new_pos_are_valid(self, new_pos):    
+            for i, block in enumerate(self.blocks):
+                game.grid[block.pos.x][block.pos.y].block = None
+                block.pos.x = new_pos[i][0]  
+                block.pos.y = new_pos[i][1]
+                game.grid[block.pos.x][block.pos.y].block = block 
+            self.pos = self.blocks[0].pos
+            return True
+        return False 
 
+    def rotate(self, clock_wise, game): # Return true if successful
+        cw = -1
+        if clock_wise: cw = 1
+        new_pos = []
+        # Check if new position is valid
+        for block in self.blocks:
+            delta_x = block.pos.x - self.pos.x
+            delta_y = block.pos.y - self.pos.y
+            new_x = self.pos.x + (-cw * delta_y)
+            new_y = self.pos.y + (cw * delta_x)
+            new_pos.append([new_x,new_y])
+        if game.org_new_pos_are_valid(self, new_pos):    
+            for i, block in enumerate(self.blocks):
+                game.grid[block.pos.x][block.pos.y].block = None
+                block.pos.x = new_pos[i][0]  
+                block.pos.y = new_pos[i][1]
+                game.grid[block.pos.x][block.pos.y].block = block 
+            self.direction = (self.direction + cw) % 4
+            self.pos = self.blocks[0].pos
+            return True
+        return False 
+       
     def translate(self, x, y, game): # Return True if successful
         new_pos = []
         for block in self.blocks:
@@ -45,9 +89,11 @@ class Organism:
         self.pos = self.blocks[0].pos
         if game.org_new_pos_are_valid(self, new_pos):    
             for i, block in enumerate(self.blocks):
+                game.grid[block.pos.x][block.pos.y].block = None
                 block.pos.x = new_pos[i][0]  
                 block.pos.y = new_pos[i][1]
-                self.pos = self.blocks[0].pos
+                game.grid[block.pos.x][block.pos.y].block = block 
+            self.pos = self.blocks[0].pos
             return True
         return False 
 
@@ -89,64 +135,18 @@ class Organism:
                         return True
         return False
 
-    def move_straight(self, step, game): # Return true if successful
-        new_pos = []
-        for block in self.blocks:
-            x, y = block.pos.x, block.pos.y 
-            if self.direction == DIRECTIONS.NORTH:
-                y -= step
-            elif self.direction == DIRECTIONS.EAST: 
-                x += step
-            elif self.direction == DIRECTIONS.SOUTH: 
-                y += step
-            elif self.direction == DIRECTIONS.WEST: 
-                x -= step
-            new_pos.append([x,y])
-        if game.org_new_pos_are_valid(self, new_pos):    
-            for i, block in enumerate(self.blocks):
-                block.pos.x = new_pos[i][0]  
-                block.pos.y = new_pos[i][1]
-                self.pos = self.blocks[0].pos
-            return True
-        return False 
-
-    def rotate(self, clock_wise, game): # Return true if successful
-        cw = -1
-        if clock_wise: cw = 1
-        new_pos = []
-        # Check if new position is valid
-        for block in self.blocks:
-            delta_x = block.pos.x - self.pos.x
-            delta_y = block.pos.y - self.pos.y
-            new_x = self.pos.x + (-cw * delta_y)
-            new_y = self.pos.y + (cw * delta_x)
-            new_pos.append([new_x,new_y])
-        if game.org_new_pos_are_valid(self, new_pos):    
-            for i, block in enumerate(self.blocks):
-                block.pos.x = new_pos[i][0]  
-                block.pos.y = new_pos[i][1] 
-            self.direction = (self.direction + cw) % 4
-            self.pos = self.blocks[0].pos
-            return True
-        return False 
-       
+    
 
     def random_move(self, game):
         r = random.randint(0, 4) ## MUT
         if r == 0:
             r2 = random.randint(0,1)
             if r2 == 0:
-                if not self.rotate(True, game):
-                    if not self.rotate(False, game):
-                        self.move_straight(self.speed, game)
+                self.rotate(True, game)
             else:
-                if not self.rotate(False, game):
-                    if not self.rotate(True, game):
-                        self.move_straight(self.speed, game)
+                self.rotate(False, game)
         else:
-            if not self.move_straight(self.speed, game):
-                if not self.rotate(True, game):
-                    self.rotate(False, game)
+            not self.move_straight(self.speed, game)
 
 ######################################################################################################
     def rotate_towards_direction(self, current_dir, aim_dir, grid):
