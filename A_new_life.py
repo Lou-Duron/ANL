@@ -12,10 +12,10 @@ FONT = Constants.FONT
 # Variables
 screen_width = 750
 screen_height  = 700
-block_size = 1
+block_size = 3
 fps = 60
-window_width = screen_width
-window_height = screen_height
+window_width = int(screen_width / block_size)
+window_height = int(screen_height / block_size)
 window_pos = Position(0,0)
 frame_count = 0
 # Setup
