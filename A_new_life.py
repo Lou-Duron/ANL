@@ -18,7 +18,6 @@ window_width = screen_width
 window_height = screen_height
 window_pos = Position(0,0)
 frame_count = 0
-
 # Setup
 pygame.display.set_caption('A new life')
 screen = pygame.display.set_mode((screen_width, screen_height))
@@ -77,6 +76,9 @@ def update_variables():
 
 ##################################################################################################
 game.add_random_organism(100)
+test = Organism(100, 100, COLOR.GREEN, DIRECTIONS.EAST, 1, 10)
+test.init_basic_org()
+game.add_organism(test)
 ##################################################################################################
 #shortkey
 #pause/play
@@ -111,9 +113,14 @@ while not game_over:
         elif event.type == pygame.MOUSEBUTTONUP:
             for s in slides:
                 s.hit = False
+        #elif event.type == pygame.KEYDOWN:
+            #if event.key == pygame.K_SPACE:
+               #pause = False
+
+    #if not pause : # WARNING : Not working properly (sliders and frame)
 ##################################################################################################  
-    game.add_random_organism(1)
-    game.add_random_food(5)
+    #game.add_random_organism(1)
+    game.add_random_food(10)
     game.check_organism_priority()
 ##################################################################################################  
 #draw
@@ -130,11 +137,14 @@ while not game_over:
         if s.hit:
             s.move()
         s.draw(screen)
-    pygame.display.update()
     if speed.val == 61:
         clock.tick(300) # Max speed
+    #elif speed.val == 5:
+        #pause = True
+        #clock.tick(1)    
     else: 
         clock.tick(speed.val)
+    pygame.display.update()
 pygame.display.update() 
 pygame.quit()
 quit()

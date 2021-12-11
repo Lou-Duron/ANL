@@ -16,7 +16,7 @@ class Organism:
         self.vision = vision
         self.blocks: list[Block] = []
 
-    def init_basic_org(self):
+    def init_basic_org(self): # Create a 4 block basic organism
         x, y = self.pos.x, self.pos.y
         color = self.color
         self.blocks.append(Block(x, y, COLOR.BLACK))
@@ -33,19 +33,48 @@ class Organism:
     def copy_itself(self): # return a copy of the organism
         new_org = Organism(self.pos.x, self.pos.y, self.color, self.direction, self.speed, self.vision)
         for block in self.blocks:
-            new_org.blocks.append(Block(block.pos.x, block.pos.y, self.color))
+            new_org.blocks.append(Block(block.pos.x, block.pos.y, block.color))
         return new_org
 
-    def try_to_translate(self, step, direction):
-        pass
+    def translate(self, x, y, game): # Return True if successful
+        new_pos = []
+        for block in self.blocks:
+            new_x = block.pos.x + x
+            new_y = block.pos.y + y
+            new_pos.append([new_x,new_y])
+        self.pos = self.blocks[0].pos
+        if game.org_new_pos_are_valid(self, new_pos):    
+            for i, block in enumerate(self.blocks):
+                block.pos.x = new_pos[i][0]  
+                block.pos.y = new_pos[i][1]
+                self.pos = self.blocks[0].pos
+            return True
+        return False 
+
+
+    def reproduce(self, game):
+        for x in range(self.pos.x - 10,self.pos.x + 10, 10):
+            for y in range(self.pos.y - 10, self.pos.y + 10, 10):
+                if game.is_in_grid(x,y) and type(game.grid[x][y]) is not Block:
+                    new_copy = self.copy_itself()
+                    if new_copy.translate(x,y, game):
+                        new_copy.mutate()
+                        game.add_organism(new_copy)
+                        break
+        self.food = 0            
+
 
     def mutate(self):
         # ROTATION AROUND CENTER ?
         pass
 
-    
+    #COLLISION
+    #moves : move_straight, rotate, copy
+    # -> return list of new pos
+    # if list of block OK in grid + other organisms:
+    #   make the move (org, list of new pos) 
 
-    def eat(self, game): # True if successful    
+    def try_to_eat(self, game): # True if successful    
         for i in range(-1,2):
             for j in range(-1,2):
                 x, y = self.pos.x + i , self.pos.y + j
@@ -58,60 +87,50 @@ class Organism:
                         return True
         return False
 
-    def move_straight(self, step, game): # True if successful
-        # Try to move else -> False(Always head first)
-        x, y = self.pos.x, self.pos.y 
-        if self.direction == DIRECTIONS.NORTH:
-            y = self.pos.y - step
-        elif self.direction == DIRECTIONS.EAST: 
-            x = self.pos.x + step
-        elif self.direction == DIRECTIONS.SOUTH: 
-            y = self.pos.y + step
-        elif self.direction == DIRECTIONS.WEST: 
-            x = self.pos.x - step
-        # Move - True
-        if game.is_in_grid(x,y):
-            for block in self.blocks:
-                if self.direction == DIRECTIONS.NORTH:
-                    block.pos.y -= step
-                elif self.direction == DIRECTIONS.EAST: 
-                    block.pos.x += step
-                elif self.direction == DIRECTIONS.SOUTH: 
-                    block.pos.y += step
-                elif self.direction == DIRECTIONS.WEST: 
-                    block.pos.x -= step
-            for block in self.blocks:
-                game.grid[block.pos.x][block.pos.y].block = block
-            self.pos = self.blocks[0].pos
+    def move_straight(self, step, game): # Return true if successful
+        new_pos = []
+        for block in self.blocks:
+            x, y = block.pos.x, block.pos.y 
+            if self.direction == DIRECTIONS.NORTH:
+                y -= step
+            elif self.direction == DIRECTIONS.EAST: 
+                x += step
+            elif self.direction == DIRECTIONS.SOUTH: 
+                y += step
+            elif self.direction == DIRECTIONS.WEST: 
+                x -= step
+            new_pos.append([x,y])
+        if game.org_new_pos_are_valid(self, new_pos):    
+            for i, block in enumerate(self.blocks):
+                block.pos.x = new_pos[i][0]  
+                block.pos.y = new_pos[i][1]
+                self.pos = self.blocks[0].pos
             return True
-        else:
-            return False
+        return False 
 
-    def rotate(self, clock_wise, game) -> bool:
+    def rotate(self, clock_wise, game): # Return true if successful
         cw = -1
         if clock_wise: cw = 1
-        blocks = []
         new_pos = []
-        # Try to rotate else -> False
+        # Check if new position is valid
         for block in self.blocks:
             delta_x = block.pos.x - self.pos.x
             delta_y = block.pos.y - self.pos.y
             new_x = self.pos.x + (-cw * delta_y)
             new_y = self.pos.y + (cw * delta_x)
-            if game.is_in_grid(new_x, new_y):
-                blocks.append(block)
-                new_pos.append([new_x,new_y])
-            else :
-                return False
-        # Rotate -> true
-        for i, b in enumerate(blocks):
-            b.pos.x = new_pos[i][0] 
-            b.pos.y = new_pos[i][1]
-        self.direction = (self.direction + cw) % 4
-        return True
+            new_pos.append([new_x,new_y])
+        if game.org_new_pos_are_valid(self, new_pos):    
+            for i, block in enumerate(self.blocks):
+                block.pos.x = new_pos[i][0]  
+                block.pos.y = new_pos[i][1] 
+            self.direction = (self.direction + cw) % 4
+            self.pos = self.blocks[0].pos
+            return True
+        return False 
+       
 
     def random_move(self, game):
-        r = random.randint(0, 4)
+        r = random.randint(0, 4) ## MUT
         if r == 0:
             r2 = random.randint(0,1)
             if r2 == 0:

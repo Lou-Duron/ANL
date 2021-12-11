@@ -41,11 +41,9 @@ class Game:
             organism.life -= 1 # Lose 1 life point
             if organism.life == 0: # If life == 0
                 self.remove_organism(organism) 
-            elif organism.food == 4:
-                organism.food = 0
-                if organism.color == COLOR.ORANGE:
-                    self.duplicate_organism(organism)
-            elif not organism.eat(self): # Eat if you can
+            elif organism.food == len(organism.blocks):
+                organism.reproduce(self)
+            elif not organism.try_to_eat(self): # Eat if you can
                 #organism.go_towards_food(self.grid)
                 organism.random_move(self) # Else move randomly
 
@@ -53,6 +51,15 @@ class Game:
 
     def is_in_grid(self, x, y):
         return x >= 0 and x < self.width and  y >= 0  and y < self.height
+
+    def org_new_pos_are_valid(self, org, positions): 
+        for pos in positions:
+            if not self.is_in_grid(pos[0], pos[1]):
+                return False
+            if type(self.grid[pos[0]][pos[1]].block) is Block:
+                if self.grid[pos[0]][pos[1]].block not in org.blocks:
+                    return False
+        return True
 
     def get_square(self, position):
         return self.grid[position.x][position.y]
@@ -63,15 +70,6 @@ class Game:
             self.grid[block.pos.x][block.pos.y].block = f
             self.food.append(f)
         self.population.remove(organism)
-
-    def duplicate_organism(self, org: Organism):
-        #try to duplicate else -> False
-        max_size = max(self.width, self.height)
-        for x in range(org.pos.x - max_size, org.pos.x - max_size, max_size):
-            for y in range(org.pos.y - max_size, org.pos.y - max_size, max_size):
-                print(x,y)
-        #new_org = org.copy()
-        #self.add_organism(Organism(x, y, org.color, org.direction, org.speed, org.vision))
     
     def add_organism(self, organism):
         self.population.append(organism)
