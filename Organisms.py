@@ -134,11 +134,17 @@ class Organism:
         if r == 0:
             r2 = random.randint(0,1)
             if r2 == 0:
-                self.rotate(True, game)
+                if not self.rotate(True, game):
+                    if not self.rotate(False, game):
+                        self.move_straight(self.speed, game)
             else:
-                self.rotate(False, game)
+                if not self.rotate(False, game):
+                    if not self.rotate(True, game):
+                        self.move_straight(self.speed, game)
         else:
-            self.move_straight(self.speed, game)
+            if not self.move_straight(self.speed, game):
+                if not self.rotate(True, game):
+                    self.rotate(False, game)
 
 ######################################################################################################
     def rotate_towards_direction(self, current_dir, aim_dir, grid):

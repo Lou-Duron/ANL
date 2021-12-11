@@ -37,22 +37,22 @@ class Game:
 ######################################################################################################
 
     def check_organism_priority(self):
-        for organism in self.population:
+        for organism in self.population: # For each organism
             organism.life -= 1 # Lose 1 life point
             if organism.life == 0: # If life == 0
-                self.remove_organism(organism) 
-            elif organism.food == len(organism.blocks):
-                organism.reproduce(self)
-            elif not organism.try_to_eat(self): # Eat if you can
+                self.remove_organism(organism) # Die
+            elif organism.food == len(organism.blocks): # If enought food
+                organism.reproduce(self) # Try to reproduce
+            elif not organism.try_to_eat(self): # Try to eat
                 #organism.go_towards_food(self.grid)
                 organism.random_move(self) # Else move randomly
 
 ######################################################################################################
 
-    def is_in_grid(self, x, y):
+    def is_in_grid(self, x, y): # Check if osition in grid
         return x >= 0 and x < self.width and  y >= 0  and y < self.height
 
-    def org_new_pos_are_valid(self, org, positions): 
+    def org_new_pos_are_valid(self, org, positions): # Check organisme new position
         for pos in positions:
             if not self.is_in_grid(pos[0], pos[1]):
                 return False
@@ -61,7 +61,7 @@ class Game:
                     return False
         return True
 
-    def get_square(self, position):
+    def get_square(self, position): 
         return self.grid[position.x][position.y]
 
     def remove_organism(self, organism: Organism):
