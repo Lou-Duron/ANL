@@ -84,7 +84,9 @@ class Game:
             y = random.randint(3, len(self.grid[0]) - 4)
             dir = random.randint(0,3)
             col = random.choice(list(COLOR.ORG))
-            self.add_organism(Organism(x,y,col,dir,1, 10))
+            og = Organism(x,y,col,dir,1, 10)
+            og.init_basic_org()
+            self.add_organism(og)
     
     def add_food(self, x, y):
         if self.grid[x][y].block is None :

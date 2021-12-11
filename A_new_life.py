@@ -60,9 +60,9 @@ def draw_food():
         pygame.draw.rect(screen, COLOR.FOOD, [(f.pos.x - window_pos.x) * block_size, (f.pos.y - window_pos.y) * block_size, block_size, block_size])
 
 
-def draw_vision():
+def draw_vision(): 
     for organism in game.population:
-        vision = organism.get_vision(game)
+        vision = organism.get_vision(game) # Too slow...
         for block in vision:
             pygame.draw.rect(screen, COLOR.VISION, [(block.pos.x - window_pos.x) * block_size, (block.pos.y - window_pos.y) * block_size, block_size, block_size])
 

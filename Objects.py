@@ -8,9 +8,6 @@ class Block:
       self.pos = Position(x,y)
       self.color = color
 
-class Body(Block):
-   def __init__(self, x, y, color):
-        Block.__init__(self, x, y, color)
 
 class Food(Block):
     def __init__(self, x, y, color):

@@ -8,36 +8,42 @@ COLOR = Constants.COLOR
 class Organism:
     food = 0
     life = 1000
-    length = 4 #longeur
-    width = 1 # largeur
     def __init__(self, x, y, color, direction, speed, vision):
         self.pos = Position(x,y)
         self.color = color
         self.direction: int = direction
         self.speed = speed
         self.vision = vision
-        self.closest_food = None
         self.blocks: list[Block] = []
+
+    def init_basic_org(self):
+        x, y = self.pos.x, self.pos.y
+        color = self.color
         self.blocks.append(Block(x, y, COLOR.BLACK))
         for i in range(1, 4):
             if self.direction == DIRECTIONS.NORTH:
-                self.blocks.append(Body(x, y + i, color))
+                self.blocks.append(Block(x, y + i, color))
             elif self.direction == DIRECTIONS.EAST: 
-                self.blocks.append(Body(x - i, y, color))
+                self.blocks.append(Block(x - i, y, color))
             elif self.direction == DIRECTIONS.SOUTH: 
-                self.blocks.append(Body(x, y - i, color))
+                self.blocks.append(Block(x, y - i, color))
             elif self.direction == DIRECTIONS.WEST: 
-                self.blocks.append(Body(x + i, y, color))
-        
+                self.blocks.append(Block(x + i, y, color))
+
+    def copy_itself(self): # return a copy of the organism
+        new_org = Organism(self.pos.x, self.pos.y, self.color, self.direction, self.speed, self.vision)
+        for block in self.blocks:
+            new_org.blocks.append(Block(block.pos.x, block.pos.y, self.color))
+        return new_org
+
+    def try_to_translate(self, step, direction):
+        pass
+
     def mutate(self):
         # ROTATION AROUND CENTER ?
         pass
 
-    def copy(self, x, y):
-        new_org = Organism(x, y, self.color, self.direction, self.speed, self.vision)
-        new_org.blocks = self.blocks
-        #mutate new org
-        return new_org
+    
 
     def eat(self, game): # True if successful    
         for i in range(-1,2):
