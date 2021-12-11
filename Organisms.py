@@ -8,6 +8,8 @@ COLOR = Constants.COLOR
 class Organism:
     food = 0
     life = 1000
+    length = 4 #longeur
+    width = 1 # largeur
     def __init__(self, x, y, color, direction, speed, vision):
         self.pos = Position(x,y)
         self.color = color
@@ -37,7 +39,7 @@ class Organism:
         #mutate new org
         return new_org
 
-    def eat(self, game):
+    def eat(self, game): # True if successful    
         for i in range(-1,2):
             for j in range(-1,2):
                 x, y = self.pos.x + i , self.pos.y + j
@@ -50,7 +52,7 @@ class Organism:
                         return True
         return False
 
-    def move_straight(self, step, game):
+    def move_straight(self, step, game): # True if successful
         # Try to move else -> False(Always head first)
         x, y = self.pos.x, self.pos.y 
         if self.direction == DIRECTIONS.NORTH:

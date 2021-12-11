@@ -18,17 +18,20 @@ window_width = screen_width
 window_height = screen_height
 window_pos = Position(0,0)
 frame_count = 0
+
 # Setup
 pygame.display.set_caption('A new life')
 screen = pygame.display.set_mode((screen_width, screen_height))
 game = Game(window_width, window_height)
 game_over = False
 clock = pygame.time.Clock()
+
+#UI
 #Name, value, max, min, pos.x
 speed = Slider("FPS", fps, 61, 5, 345)
 slides = [speed]
 
-def draw_window():
+def draw_window(): # unused
     for x in range(window_pos.x, window_pos.x + window_width):
         for y in range(window_pos.y, window_pos.y + window_height):
             if game.grid[x][y].block is not None:
@@ -88,7 +91,8 @@ while not game_over:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             game_over = True
-        elif event.type == pygame.MOUSEWHEEL: # ZOOM on mouse wheel
+        # Mouse wheel zoom
+        elif event.type == pygame.MOUSEWHEEL:
             e_x, e_y = pygame.mouse.get_pos()
             if (block_size == 1  and event.y == 1) or block_size  > 1:
                 e_block_x = int(e_x / block_size + window_pos.x)
@@ -98,6 +102,7 @@ while not game_over:
                 window_height = int(screen_height / block_size)
                 window_pos.x = min(max(int(e_block_x - (e_x / block_size) ), 0), screen_width - window_width - 1)
                 window_pos.y = min(max(int(e_block_y - (e_y / block_size) ), 0), screen_height - window_height - 1)
+        # Slider drag and drop
         elif event.type == pygame.MOUSEBUTTONDOWN:
             pos = pygame.mouse.get_pos()
             for s in slides:
@@ -107,28 +112,27 @@ while not game_over:
             for s in slides:
                 s.hit = False
 ##################################################################################################  
-    if speed.val != 5:
-        game.add_random_organism(1)
-        game.add_random_food(5)
-        game.check_organism_priority()
+    game.add_random_organism(1)
+    game.add_random_food(5)
+    game.check_organism_priority()
 ##################################################################################################  
 #draw
     screen.fill(COLOR.BK)
-     
     draw_organisms()
     draw_food()
     #draw_vision()
     #draw_window()
+
+##################################################################################################
     for i, var in enumerate(update_variables()):
         screen.blit(var, (10,i* 15))
     for s in slides:
         if s.hit:
             s.move()
         s.draw(screen)
-##################################################################################################
     pygame.display.update()
     if speed.val == 61:
-        clock.tick(200)
+        clock.tick(300) # Max speed
     else: 
         clock.tick(speed.val)
 pygame.display.update() 

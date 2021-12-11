@@ -8,7 +8,7 @@ DIRECTIONS = Constants.DIRECTIONS
 COLOR = Constants.COLOR
 '''
 New vision -> Meh
-WALL
+WALL -> artefacts
 Better duplicate
 food when died#
 copy org
@@ -59,22 +59,24 @@ class Game:
 
     def remove_organism(self, organism: Organism):
         for block in organism.blocks:
-            f = Food(block.pos.x, block.pos.y, COLOR.FOOD)
+            f = Food(block.pos.x, block.pos.y, COLOR.FOOD) # Tranform to food
             self.grid[block.pos.x][block.pos.y].block = f
             self.food.append(f)
         self.population.remove(organism)
 
     def duplicate_organism(self, org: Organism):
-        
-        x = random.randint(3, len(self.grid) - 4) # Not random
-        y = random.randint(3, len(self.grid[0]) - 4)
-        new_org = org.copy()
-        self.add_organism(Organism(x, y, org.color, org.direction, org.speed, org.vision))
+        #try to duplicate else -> False
+        max_size = max(self.width, self.height)
+        for x in range(org.pos.x - max_size, org.pos.x - max_size, max_size):
+            for y in range(org.pos.y - max_size, org.pos.y - max_size, max_size):
+                print(x,y)
+        #new_org = org.copy()
+        #self.add_organism(Organism(x, y, org.color, org.direction, org.speed, org.vision))
     
     def add_organism(self, organism):
         self.population.append(organism)
-        for b in organism.blocks:
-            self.get_square(b.pos).block = b
+        for block in organism.blocks:
+            self.get_square(block.pos).block = block
     
     def add_random_organism(self, number):
         for i in range(number):
