@@ -5,13 +5,14 @@ COLOR = Constants.COLOR
 
 class Block:       
    def __init__(self, x, y, color):
-      self.pos = Position(x,y)
-      self.color = color
+        self.pos = Position(x,y)
+        self.color = color
 
 
-class Food(Block):
+class Food:
     def __init__(self, x, y, color):
-        Block.__init__(self, x, y, color)
+        self.pos = Position(x,y)
+        self.color = color
 
 class Position:
     def __init__(self, x, y):

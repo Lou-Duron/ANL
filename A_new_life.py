@@ -14,6 +14,7 @@ screen_width = 750
 screen_height  = 700
 block_size = 3
 fps = 60
+pause = False
 window_width = int(screen_width / block_size)
 window_height = int(screen_height / block_size)
 window_pos = Position(0,0)
@@ -89,7 +90,6 @@ game.add_organism(test)
 
 
 while not game_over:
-    frame_count += 1
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             game_over = True
@@ -113,20 +113,22 @@ while not game_over:
         elif event.type == pygame.MOUSEBUTTONUP:
             for s in slides:
                 s.hit = False
-        #elif event.type == pygame.KEYDOWN:
-            #if event.key == pygame.K_SPACE:
-               #pause = False
+        elif event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_SPACE:
+               pause = False
 
-    #if not pause : # WARNING : Not working properly (sliders and frame)
+    if not pause : # WARNING : Not working properly (sliders and frame)
+        frame_count += 1
 ##################################################################################################  
-    #game.add_random_organism(1)
-    game.add_random_food(10)
-    game.check_organism_priority()
+        #game.add_random_organism(1)
+        game.add_random_food(10)
+        game.check_organism_priority()
 ##################################################################################################  
 #draw
     screen.fill(COLOR.BK)
-    draw_organisms()
     draw_food()
+    draw_organisms()
+    
     #draw_vision()
     #draw_window()
 
@@ -139,9 +141,9 @@ while not game_over:
         s.draw(screen)
     if speed.val == 61:
         clock.tick(300) # Max speed
-    #elif speed.val == 5:
-        #pause = True
-        #clock.tick(1)    
+    elif speed.val == 5:
+        pause = True
+        clock.tick(300)    
     else: 
         clock.tick(speed.val)
     pygame.display.update()

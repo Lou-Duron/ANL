@@ -69,7 +69,7 @@ class Organism:
         pass
 
     #COLLISION
-    #
+    
     #
     #moves : move_straight, rotate, copy
     # -> return list of new pos
