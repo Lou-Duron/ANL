@@ -4,7 +4,8 @@ DIRECTIONS = Constants.DIRECTIONS
 COLOR = Constants.COLOR
 
 class Block:       
-   def __init__(self, x, y, color):
+   def __init__(self, x, y, color, type):
+        self.type = type
         self.pos = Position(x,y)
         self.color = color
 

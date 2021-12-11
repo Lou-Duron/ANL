@@ -25,4 +25,11 @@ class Constants:
         SOUTH = 2
         WEST = 3
 
+    class TYPE():
+        HEAD = 0
+        BODY = 1
+        EYE = 2
+        LEG = 3
+        ATTACK = 4
+        DEFENCE = 5
         

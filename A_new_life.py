@@ -117,7 +117,7 @@ while not game_over:
     if not pause : 
         frame_count += 1
         #game.add_random_organism(1)
-        game.add_random_food(10)
+        game.add_random_food(5)
         game.check_organism_priority()
 ##################################################################################################  
 #draw

@@ -4,10 +4,11 @@ from Objects import *
 
 DIRECTIONS = Constants.DIRECTIONS
 COLOR = Constants.COLOR
+TYPE = Constants.TYPE
 
 class Organism:
     food = 0
-    life = 1000
+    life = 200
     def __init__(self, x, y, color, direction, speed, vision):
         self.pos = Position(x,y)
         self.color = color
@@ -16,24 +17,68 @@ class Organism:
         self.vision = vision
         self.blocks: list[Block] = []
 
+    #IDEAS
+    #ROTATION AROUND CENTER ?
+    # Size :
+    #   Add a block
+    #   Remove a block
+    #   chage block.type
+    #       eyes
+    #       attatck
+    #       defense
+    #       move (speed, direction)
+    # Change color
+    # change speed
+    # repdoduction rate 
+    # life
+    # foos consumption
+    # life per food
+    # speed
+    # 
+
+        
+    def mutate(self, game):
+        r = random.randint(0, 100) # chance to mutate
+        if r == 0:
+            print("mutating")
+            r2 = random.randint(0, 3)
+            if r2 < 3: # Add block
+                print("more")
+                adj_squares = self.get_adgacent_square(game)
+                if len(adj_squares) <0:
+                    new_pos = random.choice(adj_squares).pos
+                    new_block = Block(new_pos.x, new_pos.y, self.color, TYPE.BODY)
+                    self.blocks.append(new_block)
+                    game.grid[new_block.pos.x][new_block.pos.y].block = new_block
+            elif r2 == 3:
+                print("less")
+                for block in reversed(self.blocks):
+                    if block.type == TYPE.BODY:
+                        self.blocks.remove(block)
+                        game.grid[block.pos.x][block.pos.y].block = None
+            elif r2 == 1:
+                pass
+
+        pass
+
     def init_basic_org(self): # Create a 4 block basic organism
         x, y = self.pos.x, self.pos.y
         color = self.color
-        self.blocks.append(Block(x, y, COLOR.BLACK))
+        self.blocks.append(Block(x, y, COLOR.BLACK, TYPE.HEAD))
         for i in range(1, 4):
             if self.direction == DIRECTIONS.NORTH:
-                self.blocks.append(Block(x, y + i, color))
+                self.blocks.append(Block(x, y + i, color, TYPE.BODY))
             elif self.direction == DIRECTIONS.EAST: 
-                self.blocks.append(Block(x - i, y, color))
+                self.blocks.append(Block(x - i, y, color, TYPE.BODY))
             elif self.direction == DIRECTIONS.SOUTH: 
-                self.blocks.append(Block(x, y - i, color))
+                self.blocks.append(Block(x, y - i, color, TYPE.BODY))
             elif self.direction == DIRECTIONS.WEST: 
-                self.blocks.append(Block(x + i, y, color))
+                self.blocks.append(Block(x + i, y, color, TYPE.BODY))
 
     def copy_itself(self): # return a copy of the organism
         new_org = Organism(self.pos.x, self.pos.y, self.color, self.direction, self.speed, self.vision)
         for block in self.blocks:
-            new_org.blocks.append(Block(block.pos.x, block.pos.y, block.color))
+            new_org.blocks.append(Block(block.pos.x, block.pos.y, block.color, block.type))
         return new_org
     def move_straight(self, step, game): # Return true if successful
         new_pos = []
@@ -104,16 +149,26 @@ class Organism:
                 if game.is_in_grid(x,y) and type(game.grid[x][y]) is not Block:
                     new_copy = self.copy_itself()
                     if new_copy.translate(x,y, game):
-                        new_copy.mutate()
+                        new_copy.mutate(game)
                         game.add_organism(new_copy)
                         break
         self.food = 0            
 
 
-    def mutate(self):
-        # ROTATION AROUND CENTER ?
-        pass
-
+    
+    
+    def get_adgacent_square(self, game):
+        s = []
+        for block in self.blocks[1:]: 
+            for x in range(-1, 1, 2):
+                for y in range(-1, 1, 2):
+                    new_x = block.pos.x + x
+                    new_y = block.pos.x + y
+                    if game.is_in_grid(new_x, new_y):
+                        if type(game.grid[new_x][new_y].block) is not Block:
+                            if game.grid[new_x][new_y].block not in s:
+                                s.append(game.grid[new_x][new_y])
+        return s
     #COLLISION
     
     #
@@ -135,7 +190,8 @@ class Organism:
                         return True
         return False
 
-    
+   
+
 
     def random_move(self, game):
         r = random.randint(0, 4) ## MUT
@@ -146,7 +202,9 @@ class Organism:
             else:
                 self.rotate(False, game)
         else:
-            not self.move_straight(self.speed, game)
+            if not self.move_straight(self.speed, game):
+                if not self.rotate(True, game):
+                    self.rotate(False, game)
 
 ######################################################################################################
     def rotate_towards_direction(self, current_dir, aim_dir, grid):

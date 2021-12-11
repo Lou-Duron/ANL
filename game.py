@@ -52,7 +52,7 @@ class Game:
     def is_in_grid(self, x, y): # Check if osition in grid
         return x >= 0 and x < self.width and  y >= 0  and y < self.height
 
-    def org_new_pos_are_valid(self, org, positions): # Check organism new position
+    def org_new_pos_are_valid(self, org, positions): # Check organisme new position
         for pos in positions:
             if not self.is_in_grid(pos[0], pos[1]):
                 return False
