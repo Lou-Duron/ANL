@@ -81,9 +81,9 @@ class Game:
             x = random.randint(3, len(self.grid) - 4)
             y = random.randint(3, len(self.grid[0]) - 4)
             dir = random.randint(0,3)
-            col = random.choice(list(COLOR.ORG))
-            og = Organism(x,y,col,dir,1, 10)
-            og.init_basic_org()
+            col = random.choice(list(COLOR.BASIC_ORG))
+            og = Organism(col,dir,1, 10)
+            og.init_basic_org(x,y)
             self.add_organism(og)
     
     def add_food(self, x, y):

@@ -3,17 +3,22 @@ import pygame
 class Constants:
     
     class COLOR:
-        RED = (176, 4, 4)
-        ORANGE = (240, 121, 23)
-        BLUE = (25, 107, 195)
-        GREEN  = (140, 195, 25)
-        YELLOW = (223, 240, 16)
+        RED = (204, 13, 13)
+        ORANGE = (203, 112, 13)
+        YELLOW = (219, 198, 23)
+        GREEN  = (56, 183, 18)
+        CYAN = (18, 183, 152)
+        BLUE = (18, 69, 183)
+        PURPLE = (132, 45, 164)
+        ROSE = (246, 33, 351)
         BLACK = (0, 0, 0)
+        WHITHE = (255, 255, 255)
         BK = (30, 32, 35)
         VISION = (215,215,215)
         FOOD = (50, 118, 51)    
         TRANS = (1, 1, 1)    
-        ORG = [RED, ORANGE, BLUE, GREEN, YELLOW]
+        BASIC_ORG = [RED, BLUE, GREEN]
+        ORG = [RED, ORANGE, YELLOW, GREEN, CYAN, BLUE, ROSE, PURPLE]
 
     class FONT:
         verdana = pygame.font.SysFont("Verdana", 12)

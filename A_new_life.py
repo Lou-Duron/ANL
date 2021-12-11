@@ -43,8 +43,8 @@ def draw_food_range():
     for org in game.population:
         for i in range(-1,2):
                 for j in range(-1,2):
-                    x, y = org.pos.x + i , org.pos.y + j
-                    if Position(x,y).is_in_grid(game.grid):
+                    x, y = org.blocks[0].pos.x + i , org.blocks[0].pos.y + j
+                    if game.is_in_grid(x,y):
                         pygame.draw.rect(screen, COLOR.VISION, [(x - window_pos.x) * block_size, (y - window_pos.y) * block_size, block_size, block_size])
           
 # IDEA : get organism and food in the current window for optimisation 
@@ -122,9 +122,10 @@ while not game_over:
 ##################################################################################################  
 #draw
     screen.fill(COLOR.BK)
+    
+    #draw_food_range()
     draw_food()
     draw_organisms()
-    
     #draw_vision()
     #draw_window()
 
