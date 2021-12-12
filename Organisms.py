@@ -42,6 +42,7 @@ class Organism:
             print(f"mutating")
             r2 = random.randint(0, 4)
             if r2 < 3: # Add block
+                print("get squares")
                 adj_squares = self.get_adgacent_square(game)
                 if len(adj_squares) > 0:
                     print(f"Size : {len(self.blocks)} -> {len(self.blocks) + 1}")
@@ -68,16 +69,19 @@ class Organism:
 
         pass
 
-    def reproduce(self, game):
-        for x in range(self.blocks[0].pos.x - 10,self.blocks[0].pos.x + 10, 10):
-            for y in range(self.blocks[0].pos.y - 10, self.blocks[0].pos.y + 10, 10):
+    def reproduce(self, game): # -> return true is successful
+        self.food = 0 
+        for i in range(-10, 11, 10):
+            for j in range(-10, 11, 10):
+                x = self.blocks[0].pos.x + i
+                y = self.blocks[0].pos.y + j
                 if game.is_in_grid(x,y) and type(game.grid[x][y]) is not Block:
                     new_copy = self.copy_itself()
-                    if new_copy.translate(x,y, game):
+                    if new_copy.translate(i,j, game):
                         new_copy.mutate(game)
                         game.add_organism(new_copy)
-                        break
-        self.food = 0      
+                        return True             
+        return False
 
     def init_basic_org(self, x, y): # Create a 4 block basic organism
         color = self.color
@@ -116,6 +120,8 @@ class Organism:
                 game.grid[block.pos.x][block.pos.y].block = None
                 block.pos.x = new_pos[i][0]  
                 block.pos.y = new_pos[i][1]
+                if type(game.grid[block.pos.x][block.pos.y].block) is Food:
+                    game.food.remove(game.grid[block.pos.x][block.pos.y].block)
                 game.grid[block.pos.x][block.pos.y].block = block
             return True
         return False 
@@ -136,6 +142,8 @@ class Organism:
                 game.grid[block.pos.x][block.pos.y].block = None
                 block.pos.x = new_pos[i][0]  
                 block.pos.y = new_pos[i][1]
+                if type(game.grid[block.pos.x][block.pos.y].block) is Food:
+                    game.food.remove(game.grid[block.pos.x][block.pos.y].block)
                 game.grid[block.pos.x][block.pos.y].block = block 
             self.direction = (self.direction + cw) % 4
             return True
@@ -152,6 +160,8 @@ class Organism:
                 game.grid[block.pos.x][block.pos.y].block = None
                 block.pos.x = new_pos[i][0]  
                 block.pos.y = new_pos[i][1]
+                if type(game.grid[block.pos.x][block.pos.y].block) is Food:
+                    game.food.remove(game.grid[block.pos.x][block.pos.y].block)
                 game.grid[block.pos.x][block.pos.y].block = block
             return True
         return False 
@@ -159,10 +169,10 @@ class Organism:
     def get_adgacent_square(self, game):
         s = []
         for block in self.blocks[1:]: 
-            for x in range(-1, 1, 2):
-                for y in range(-1, 1, 2):
-                    new_x = block.pos.x + x
-                    new_y = block.pos.x + y
+            positions = [[1,0], [-1,0], [0,1], [0,-1]]
+            for p in positions:
+                    new_x = block.pos.x + p[0]
+                    new_y = block.pos.y + p[1]
                     if game.is_in_grid(new_x, new_y):
                         if type(game.grid[new_x][new_y].block) is not Block:
                             if game.grid[new_x][new_y].block not in s:
@@ -182,7 +192,6 @@ class Organism:
                 x, y = self.blocks[0].pos.x + i , self.blocks[0].pos.y + j
                 if game.is_in_grid(x,y):
                     if type(game.grid[x][y].block) is Food:
-                        #print(f"Oorg pos : {self.blocks[0].pos.x, self.blocks[0].pos.y} found food")
                         self.food += 1                    
                         game.food.remove(game.grid[x][y].block)
                         game.grid[x][y].block = None
