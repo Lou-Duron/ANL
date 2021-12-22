@@ -42,7 +42,6 @@ class Organism:
             print(f"mutating")
             r2 = random.randint(0, 4)
             if r2 < 3: # Add block
-                print("get squares")
                 adj_squares = self.get_adgacent_square(game)
                 if len(adj_squares) > 0:
                     print(f"Size : {len(self.blocks)} -> {len(self.blocks) + 1}")
@@ -66,8 +65,6 @@ class Organism:
                 pass
             elif r2 == 1:
                 pass
-
-        pass
 
     def reproduce(self, game): # -> return true is successful
         self.food = 0 
@@ -167,7 +164,7 @@ class Organism:
         return False 
       
     def get_adgacent_square(self, game):
-        s = []
+        squares = []
         for block in self.blocks[1:]: 
             positions = [[1,0], [-1,0], [0,1], [0,-1]]
             for p in positions:
@@ -175,19 +172,12 @@ class Organism:
                     new_y = block.pos.y + p[1]
                     if game.is_in_grid(new_x, new_y):
                         if type(game.grid[new_x][new_y].block) is not Block:
-                            if game.grid[new_x][new_y].block not in s:
-                                s.append(game.grid[new_x][new_y])
-        return s
-    #COLLISION
-    
-    #
-    #moves : move_straight, rotate, copy
-    # -> return list of new pos
-    # if list of block OK in grid + other organisms:
-    #   make the move (org, list of new pos) 
+                            if game.grid[new_x][new_y].block not in squares:
+                                squares.append(game.grid[new_x][new_y])
+        return squares
 
     def try_to_eat(self, game): # True if successful    
-        for i in range(-1,2):
+        for i in range(-1,2): # MUT ?
             for j in range(-1,2):
                 x, y = self.blocks[0].pos.x + i , self.blocks[0].pos.y + j
                 if game.is_in_grid(x,y):
@@ -198,9 +188,6 @@ class Organism:
                         self.life += 20 # Expanding life for 20 time units # MUT ?
                         return True
         return False
-
-   
-
 
     def random_move(self, game):
         r = random.randint(0, 4) ## MUT
@@ -254,12 +241,13 @@ class Organism:
         else:
             self.random_move(grid)
 ######################################################################################################
-    def get_vision(self, game):
+    def get_vision(self, game): # Too slow...
         blocks = []
         for x in range(self.blocks[0].pos.x - self.vision, self.blocks[0].pos.x + self.vision + 1):
             for y in range(self.blocks[0].pos.y - self.vision , self.blocks[0].pos.y + self.vision + 1):
                 if game.is_in_grid(x,y):
                     i = 0
-                    #if grid[x][y].block is not None and grid[x][y].block not in self.blocks:
-                    #blocks.append(grid[x][y].block)
+                    if game.grid[x][y].block is not None:
+                        if game.grid[x][y].block not in self.blocks:
+                            blocks.append(game.grid[x][y].block)
         return blocks
