@@ -36,66 +36,66 @@ class Game:
 
 ######################################################################################################
 
-    def check_organism_priority(self):
+    def checkOrganismPriority(self):
         for organism in self.population: # For each organism
             organism.life -= 1 # Lose 1 life point
             if organism.life == 0: # If life == 0
-                self.remove_organism(organism) # Die
+                self.removeOrganism(organism) # Die
             elif organism.food == len(organism.blocks): # If enought food
                 organism.reproduce(self) # Try to reproduce
-            elif not organism.try_to_eat(self): # Try to eat
-                #organism.go_towards_food(self.grid)
-                organism.random_move(self) # Else move randomly
+            elif not organism.tryToEat(self): # Try to eat
+                #organism.goTowardsFood(self.grid)
+                organism.randomMove(self) # Else move randomly
 
 ######################################################################################################
 
-    def is_in_grid(self, x, y): # Check if osition in grid
+    def isInGrid(self, x, y): # Check if osition in grid
         return x >= 0 and x < self.width and  y >= 0  and y < self.height
 
-    def org_new_pos_are_valid(self, org, positions): # Check organisme new position
+    def orgNewPosAreValid(self, org, positions): # Check organisme new position
         for pos in positions:
-            if not self.is_in_grid(pos[0], pos[1]):
+            if not self.isInGrid(pos[0], pos[1]):
                 return False
             if type(self.grid[pos[0]][pos[1]].block) is Block:
                 if self.grid[pos[0]][pos[1]].block not in org.blocks:
                     return False
         return True
 
-    def get_square(self, position): 
+    def getSquare(self, position): 
         return self.grid[position.x][position.y]
 
-    def remove_organism(self, organism: Organism):
+    def removeOrganism(self, organism: Organism):
         for block in organism.blocks:
             f = Food(block.pos.x, block.pos.y, COLOR.FOOD) # Tranform to food
             self.grid[block.pos.x][block.pos.y].block = f
             self.food.append(f)
         self.population.remove(organism)
     
-    def add_organism(self, organism):
+    def addOrganism(self, organism):
         self.population.append(organism)
         for block in organism.blocks:
-            self.get_square(block.pos).block = block
+            self.getSquare(block.pos).block = block
     
-    def add_random_organism(self, number):
+    def addRandomOrganism(self, number):
         for i in range(number):
             x = random.randint(3, len(self.grid) - 4)
             y = random.randint(3, len(self.grid[0]) - 4)
             dir = random.randint(0,3)
             col = random.choice(list(COLOR.BASIC_ORG))
-            og = Organism(col,dir,1, 10)
-            og.init_basic_org(x,y)
-            self.add_organism(og)
+            og = Organism(col,dir,1, 5)
+            og.initBasicOrg(x,y)
+            self.addOrganism(og)
     
-    def add_food(self, x, y):
+    def addFood(self, x, y):
         if self.grid[x][y].block is None :
             f = Food(x, y, COLOR.FOOD)
             self.food.append(f)
             self.grid[x][y].block = f
 
-    def add_random_food(self, number):
+    def addRandomFood(self, number):
         for i in range(number):
             x = random.randint(0, len(self.grid) - 1)
             y = random.randint(0, len(self.grid[0]) - 1)
-            self.add_food(x,y)
+            self.addFood(x,y)
     
 

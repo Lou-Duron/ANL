@@ -31,7 +31,7 @@ clock = pygame.time.Clock()
 speed = Slider("FPS", fps, 61, 5, 345)
 slides = [speed]
 
-def draw_window(): # unused
+def drawWindow(): # unused
     for x in range(window_pos.x, window_pos.x + window_width):
         for y in range(window_pos.y, window_pos.y + window_height):
             if game.grid[x][y].block is not None:
@@ -39,34 +39,34 @@ def draw_window(): # unused
                 pygame.draw.rect(screen, b.color, [(b.pos.x - window_pos.x) * block_size, (b.pos.y - window_pos.y) * block_size, block_size, block_size])
 
 
-def draw_food_range():
+def drawFoodRange():
     for org in game.population:
         for i in range(-1,2):
                 for j in range(-1,2):
                     x, y = org.blocks[0].pos.x + i , org.blocks[0].pos.y + j
-                    if game.is_in_grid(x,y):
+                    if game.isInGrid(x,y):
                         pygame.draw.rect(screen, COLOR.VISION, [(x - window_pos.x) * block_size, (y - window_pos.y) * block_size, block_size, block_size])
           
 # IDEA : get organism and food in the current window for optimisation 
 # For the moment, negative values are computed but not displayed
 
-def draw_organisms():
+def drawOrganisms():
     for organism in game.population:
         for block in organism.blocks:
             pygame.draw.rect(screen, block.color, [(block.pos.x - window_pos.x) * block_size, (block.pos.y - window_pos.y) * block_size, block_size, block_size])
 
-def draw_food():
+def drawFood():
     for f in game.food:
         pygame.draw.rect(screen, COLOR.FOOD, [(f.pos.x - window_pos.x) * block_size, (f.pos.y - window_pos.y) * block_size, block_size, block_size])
 
 
-def draw_vision(): 
+def drawVision(): 
     for organism in game.population:
-        vision = organism.get_vision(game) # Too slow...
+        vision = organism.getVision(game) # Too slow...
         for block in vision:
             pygame.draw.rect(screen, COLOR.VISION, [(block.pos.x - window_pos.x) * block_size, (block.pos.y - window_pos.y) * block_size, block_size, block_size])
 
-def update_variables():
+def updateVariables():
     var = []
     fps = str(int(clock.get_fps()))
     var.append(FONT.arial.render(f"FPS : {fps}", 1, COLOR.ORANGE))
@@ -76,8 +76,8 @@ def update_variables():
     return var
 
 ##################################################################################################
-game.add_random_organism(10)
-game.add_random_food(1000)
+game.addRandomOrganism(10)
+game.addRandomFood(200)
 ##################################################################################################
 #shortkey
 #pause/play
@@ -117,21 +117,21 @@ while not game_over:
 ##################################################################################################  
     if not pause : 
         frame_count += 1
-        #game.add_random_organism(1)
-        game.add_random_food(5)
-        game.check_organism_priority()
+        #game.addRandomOrganism(1)
+        game.addRandomFood(2)
+        game.checkOrganismPriority()
 ##################################################################################################  
 #draw
     screen.fill(COLOR.BK)
     
-    #draw_food_range()
-    draw_food()
-    draw_organisms()
-    #draw_vision()
-    #draw_window()
+    #drawFoodRange()
+    drawFood()
+    drawOrganisms()
+    #drawVision()
+    #drawWindow()
 
 ##################################################################################################
-    for i, var in enumerate(update_variables()):
+    for i, var in enumerate(updateVariables()):
         screen.blit(var, (10,i* 15))
     for s in slides:
         if s.hit:

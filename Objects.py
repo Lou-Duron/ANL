@@ -15,7 +15,7 @@ class Food:
         self.pos = Position(x,y)
         self.color = color
 
-class Position:
+class Position: # From Lux IA
     def __init__(self, x, y):
         self.x = x
         self.y = y
