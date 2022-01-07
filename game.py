@@ -64,7 +64,7 @@ class Game:
     def getSquare(self, position): 
         return self.grid[position.x][position.y]
 
-    def removeOrganism(self, organism: Organism):
+    def removeOrganism(self, organism):
         for block in organism.blocks:
             f = Food(block.pos.x, block.pos.y, COLOR.FOOD) # Tranform to food
             self.grid[block.pos.x][block.pos.y].block = f

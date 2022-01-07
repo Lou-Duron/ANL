@@ -1,6 +1,7 @@
 import random
 from constants import Constants
 from Objects import *
+import mutations as mut
 
 DIRECTIONS = Constants.DIRECTIONS
 COLOR = Constants.COLOR
@@ -41,36 +42,15 @@ class Organism:
         r = random.randint(0, 50) # chance to mutate
         if r == 0:
             print(f"mutating")
-            r2 = random.randint(0, 4)
-
-            # Add block
-            if r2 < 3:
-                adj_squares = self.getAdjacentSquares(game)
-                if len(adj_squares) > 0:
-                    print(f"Size : {len(self.blocks)} -> {len(self.blocks) + 1}")
-                    new_pos = random.choice(adj_squares).pos
-                    new_block = Block(new_pos.x, new_pos.y, self.color, TYPE.BODY)
-                    self.blocks.append(new_block)
-                    game.grid[new_block.pos.x][new_block.pos.y].block = new_block
-
-            # Remove block
+            r2 = random.randint(0, 4) # between x and y included
+            
+            if r2 <= 2:
+                mut.add_block(self, game)
             elif r2 == 3:
-                print(f"Size : {len(self.blocks)} -> {len(self.blocks) - 1}")
-                for block in reversed(self.blocks):
-                    if block.type == TYPE.BODY:
-                        self.blocks.remove(block)
-                        game.grid[block.pos.x][block.pos.y].block = None
-                        break
-
-            # Change color
+                mut.remove_block(self, game)
             elif r2 == 4:
-                new_col = random.choice(list(COLOR.ORG))
-                print(f"Color")
-                self.color = new_col
-                for block in self.blocks[1:]:
-                    block.color = new_col
-                pass
-            elif r2 == 1:
+                mut.change_color(self)
+            else:
                 pass
 
     def reproduce(self, game): # -> return true is successful

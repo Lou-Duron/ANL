@@ -4,6 +4,8 @@ from Organisms import *
 from game import Game
 from constants import Constants
 from UI import Slider
+import random
+
 
 DIRECTIONS = Constants.DIRECTIONS
 COLOR = Constants.COLOR
@@ -120,7 +122,7 @@ while not game_over:
         #game.addRandomOrganism(1)
         game.addRandomFood(3)
         game.checkOrganismPriority()
-
+        print(random.randint(0, 4))
 ##################################################################################################  
 #draw
     screen.fill(COLOR.BK)
