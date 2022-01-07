@@ -77,7 +77,7 @@ def updateVariables():
 
 ##################################################################################################
 game.addRandomOrganism(10)
-game.addRandomFood(200)
+game.addRandomFood(1000)
 ##################################################################################################
 #shortkey
 #pause/play
@@ -118,12 +118,13 @@ while not game_over:
     if not pause : 
         frame_count += 1
         #game.addRandomOrganism(1)
-        game.addRandomFood(2)
+        game.addRandomFood(3)
         game.checkOrganismPriority()
+
 ##################################################################################################  
 #draw
     screen.fill(COLOR.BK)
-    
+    #pygame.draw.circle(screen, COLOR.VISION, (100,100), 20)
     #drawFoodRange()
     drawFood()
     drawOrganisms()

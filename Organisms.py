@@ -33,7 +33,8 @@ class Organism:
     # food consumption
     # life per food
     # speed
-    # 
+    # pas de cannibalisme
+    # gros -> pas facilement butable
 
         
     def mutate(self, game):
